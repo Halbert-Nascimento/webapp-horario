@@ -1,10 +1,10 @@
 export interface CelulaViewInterface {
 	idCelula: number;
-	curso: string;
-	disciplina: string;
+	nomeCurso: string;
+	nomeDisciplina: string;
 	modalidade: string;
 	tipo_sala: string;
-	professor: string;
+	nomeProfessor: string;
 	titulacao: string;
 	dia_semana: string;
 	semestre: string;
@@ -13,10 +13,10 @@ export interface CelulaViewInterface {
 
 export interface CelulaCursoViewInterface {
 	idCurso: number;
-	curso: string;
-	disciplina: string;
+	nomeCurso: string;
+	nomeDisciplina: string;
 	modadalidade: string;
-	professor: string;
+	nomeProfessor: string;
 	titulacao: string;
 	dia_semana: string;
 	semestre: string;
@@ -34,13 +34,13 @@ export interface ModalProps {
 
 export interface Professor {
 	idProfessor: number;
-	nome: string;
+	nomeProfessor: string;
 	titulacao?: string;
 }
 
 export interface Disciplina {
 	idDisciplina: number;
-	nome: string;
+	nomeDisciplina: string;
 }
 
 export interface ModalData {

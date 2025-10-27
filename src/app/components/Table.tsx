@@ -33,7 +33,7 @@ export default function Tabela() {
 	const [loading, setLoading] = useState(true);
 	const [modalAberto, setModalAberto] = useState(false);
 	const [modalData, setModalData] = useState<ModalData | null>(null);
-	const semestres = gerarSemestres(10, apenasImpares);
+	const semestres = gerarSemestres(8, apenasImpares);
 
 	// Converter número do dia da semana para nome
 	const getDiaSemanaString = (diaNumero: number): string => {
@@ -52,12 +52,35 @@ export default function Tabela() {
 	const carregarDados = async () => {
 		try {
 			setLoading(true);
-			const response = await api.get<CelulaViewInterface[]>("/celula");
+
+			// Buscar dados de células, professores e disciplinas em paralelo
+			const [celulasResponse, professoresResponse, disciplinasResponse] =
+				await Promise.all([
+					api.get<CelulaViewInterface[]>("/celula"),
+					api.get("/professor"),
+					api.get("/disciplina"),
+				]);
+
+			// Criar mapas para acesso rápido por NOME
+			const professoresMap = new Map();
+			professoresResponse.data.forEach((prof: any) => {
+				professoresMap.set(prof.nomeProfessor, {
+					titulacao: prof.titulacao,
+				});
+			});
+
+			const disciplinasMap = new Map();
+			disciplinasResponse.data.forEach((disc: any) => {
+				disciplinasMap.set(disc.nomeDisciplina, {
+					tipoSala: disc.tipo_sala,
+				});
+			});
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
-			response.data.forEach((celula: CelulaViewInterface, index) => {
-				// Verificar se dia_semana é número ou string
+
+			celulasResponse.data.forEach((celula: CelulaViewInterface) => {
+				// Tratar dia_semana
 				let diaSemana: string;
 				if (typeof celula.dia_semana === "number") {
 					diaSemana = getDiaSemanaString(celula.dia_semana);
@@ -65,32 +88,52 @@ export default function Tabela() {
 					diaSemana = celula.dia_semana;
 				}
 
-				// Extrair número do semestre
-				let semestreNumero: string;
+				// Tratar semestre - extrair apenas o número
+				let semestreNumero: number;
 				if (typeof celula.semestre === "number") {
-					semestreNumero = String(celula.semestre);
-				} else if (
-					typeof celula.semestre === "string" &&
-					celula.semestre.includes("/")
-				) {
-					semestreNumero = celula.semestre.split("/")[1];
-				} else if (typeof celula.semestre === "string") {
 					semestreNumero = celula.semestre;
+				} else if (typeof celula.semestre === "string") {
+					const match = celula.semestre.match(/\d+/);
+					semestreNumero = match ? parseInt(match[0]) : 0;
 				} else {
-					semestreNumero = "";
+					semestreNumero = 0;
+				}
+
+				// Verificar se o dia é válido
+				if (!dias.includes(diaSemana)) {
+					return;
 				}
 
 				// Criar a chave usando dia_semana e semestre
 				const chave = `${diaSemana}-${semestreNumero}º Semestre`;
 
+				// Buscar informações adicionais do professor e disciplina usando NOMES
+				const professorInfo = professoresMap.get(celula.nomeProfessor);
+				const disciplinaInfo = disciplinasMap.get(celula.nomeDisciplina);
+
 				// Criar o conteúdo da célula
-				const conteudo = `${celula.disciplina}\n${celula.professor}`;
+				let conteudo = celula.nomeDisciplina;
+
+				// Adicionar professor com titulação
+				if (celula.nomeProfessor) {
+					if (professorInfo?.titulacao) {
+						conteudo += `\n${celula.nomeProfessor} (${professorInfo.titulacao})`;
+					} else {
+						conteudo += `\n${celula.nomeProfessor}`;
+					}
+				}
+
+				// Adicionar tipo de sala
+				if (disciplinaInfo?.tipoSala) {
+					conteudo += `\n${disciplinaInfo.tipoSala}`;
+				}
+
 				dadosMapeados[chave] = conteudo;
 			});
 
 			setDados(dadosMapeados);
 		} catch (error) {
-			console.error("❌ Erro ao carregar dados:", error);
+			console.error("Erro ao carregar dados:", error);
 		} finally {
 			setLoading(false);
 		}
@@ -164,10 +207,10 @@ export default function Tabela() {
 									<td
 										key={chave}
 										onClick={() => handleCellClick(dia, sem)}
-										className='border p-2 hover:bg-blue-50 cursor-pointer w-48 min-w-48 max-w-48 h-24 max-h-24 overflow-hidden align-top'
+										className='border p-2 hover:bg-blue-50 cursor-pointer w-48 min-w-48 max-w-48 h-24 max-h-24 overflow-hidden'
 										title={conteudo || chave}
 									>
-										<div className='h-full overflow-auto text-xs leading-tight whitespace-pre-line break-words'>
+										<div className='h-full flex items-center justify-center overflow-auto text-xs leading-tight whitespace-pre-line break-words'>
 											{conteudo || ""}
 										</div>
 									</td>

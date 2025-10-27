@@ -61,10 +61,6 @@ export default function Modal({
 		return diasMap[diaNome] || 0;
 	};
 
-	const gerarIdAleatorio = (): number => {
-		return Math.floor(Math.random() * 1000000) + 1;
-	};
-
 	const handleSalvar = async () => {
 		if (!formData.professorId || !formData.disciplinaId) {
 			alert("Por favor, selecione o professor e a disciplina");
@@ -83,17 +79,16 @@ export default function Modal({
 			return;
 		}
 
-		const conteudo = `${disciplinaSelecionada.nome}\n${professorSelecionado.nome}`;
+		const conteudo = `${disciplinaSelecionada.nomeDisciplina}\n${professorSelecionado.nomeProfessor}`;
 		const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
 		const diaSemanaNumero = getDiaSemanaNumero(dia);
 
 		try {
 			const payload = {
-				idCurso_Disciplina_Professor: gerarIdAleatorio(),
 				idGrade: idGrade,
 				idDisciplina: parseInt(formData.disciplinaId),
 				idProfessor: parseInt(formData.professorId),
-				dia_semanan: diaSemanaNumero,
+				dia_semana: diaSemanaNumero,
 				semestre: semestreNumero,
 			};
 
@@ -158,7 +153,7 @@ export default function Modal({
 										key={disciplina.idDisciplina}
 										value={disciplina.idDisciplina}
 									>
-										{disciplina.nome}
+										{disciplina.nomeDisciplina}
 									</option>
 								))}
 							</select>
@@ -182,7 +177,7 @@ export default function Modal({
 										key={professor.idProfessor}
 										value={professor.idProfessor}
 									>
-										{professor.nome}
+										{professor.nomeProfessor}
 										{professor.titulacao && ` (${professor.titulacao})`}
 									</option>
 								))}
