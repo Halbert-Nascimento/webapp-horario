@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  /* config options here */
+	reactStrictMode: true,
+	logging: {
+		fetches: {
+			fullUrl: true,
+		},
+	},
+	experimental: {
+		scrollRestoration: true,
+	},
 };
 
 export default nextConfig;

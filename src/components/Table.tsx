@@ -168,58 +168,73 @@ export default function Tabela() {
 
 	if (loading) {
 		return (
-			<div className='flex justify-center items-center h-screen'>
+			<div className='flex justify-center items-center min-h-screen lg:ml-72'>
 				<div className='text-xl'>Carregando dados...</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className='overflow-auto max-w-2/3 h-[80vh] p-4'>
+		<div className='flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 lg:ml-72 pt-20'>
 			<button
 				onClick={() => setApenasImpares(!apenasImpares)}
-				className='mb-4 bg-blue-600 text-white px-4 py-2 rounded'
+				className='mb-4 bg-blue-800 text-white px-4 py-2 rounded text-sm sm:text-base'
 			>
-				Mostrar {apenasImpares ? "Semestres Pares" : "Semestres Ímpares"}
+				{apenasImpares ? "Semestres Pares" : "Semestres Ímpares"}
 			</button>
 
-			<table className='border-separate border-spacing-0 border text-center'>
-				<thead>
-					<tr className='bg-blue-900 text-white'>
-						<th className='p-2 w-40 min-w-40 max-w-40 h-20'>Dia</th>
-						{semestres.map((s) => (
-							<th key={s} className='p-2 w-48 min-w-48 max-w-48 h-20'>
-								{s}
+			<div className='w-full overflow-x-auto shadow-lg max-w-[95vw] lg:max-w-[1200px]'>
+				<table className='border-separate border-spacing-0 border text-center w-full'>
+					<thead>
+						<tr className='bg-blue-900 text-white'>
+							<th
+								className='p-1 sm:p-2 h-16 sm:h-20 border border-black text-xs sm:text-sm lg:text-base sticky left-0 z-20 bg-blue-900'
+								style={{ minWidth: "188px", width: "188px" }}
+							>
+								Dia
 							</th>
-						))}
-					</tr>
-				</thead>
-				<tbody>
-					{dias.map((dia) => (
-						<tr key={dia}>
-							<td className='border p-2 font-semibold w-40 min-w-40 max-w-40 bg-gray-50 sticky left-0 z-10 h-24'>
-								{dia}
-							</td>
-							{semestres.map((sem) => {
-								const chave = `${dia}-${sem}`;
-								const conteudo = dados[chave];
-								return (
-									<td
-										key={chave}
-										onClick={() => handleCellClick(dia, sem)}
-										className='border p-2 hover:bg-blue-50 cursor-pointer w-48 min-w-48 max-w-48 h-24 max-h-24 overflow-hidden'
-										title={conteudo || chave}
-									>
-										<div className='h-full flex items-center justify-center overflow-auto text-xs leading-tight whitespace-pre-line break-words'>
-											{conteudo || ""}
-										</div>
-									</td>
-								);
-							})}
+							{semestres.map((s) => (
+								<th
+									key={s}
+									className='p-1 sm:p-2 h-16 sm:h-20 border border-black text-xs sm:text-sm lg:text-base'
+									style={{ width: `${100 / semestres.length}%` }}
+								>
+									{s}
+								</th>
+							))}
 						</tr>
-					))}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{dias.map((dia) => (
+							<tr key={dia}>
+								<td
+									className='border p-1 sm:p-2 font-semibold bg-gray-50 sticky left-0 z-10 h-20 sm:h-24 text-xs sm:text-sm lg:text-base'
+									style={{ minWidth: "188px", width: "188px" }}
+								>
+									<div className='break-words'>{dia}</div>
+								</td>
+								{semestres.map((sem) => {
+									const chave = `${dia}-${sem}`;
+									const conteudo = dados[chave];
+									return (
+										<td
+											key={chave}
+											onClick={() => handleCellClick(dia, sem)}
+											className='border p-1 sm:p-2 hover:bg-blue-50 cursor-pointer h-20 sm:h-24 overflow-hidden'
+											style={{ width: `${100 / semestres.length}%` }}
+											title={conteudo || chave}
+										>
+											<div className='h-full flex items-center justify-center overflow-auto text-[10px] sm:text-xs leading-tight whitespace-pre-line break-words'>
+												{conteudo || ""}
+											</div>
+										</td>
+									);
+								})}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 
 			{/* Modal */}
 			{modalData && (

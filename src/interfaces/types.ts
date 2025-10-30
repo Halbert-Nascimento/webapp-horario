@@ -48,3 +48,27 @@ export interface ModalData {
 	semestre: string;
 	chave: string;
 }
+
+export interface InputCadastroProps {
+	label: string;
+	type: string;
+	placeHolder: string;
+	value: string;
+	onChange?: () => void;
+}
+
+export interface ButtonCadastroProps {
+	text: string;
+	onClick?: () => void;
+	textColor?: string;
+	bgColor?: string;
+	style?: string;
+}
+
+export interface FormProps {
+	children: React.ReactNode;
+}
+
+export interface DisponibilidadeDiasProps {
+	onChange?: (diasSelecionados: string[]) => void;
+}

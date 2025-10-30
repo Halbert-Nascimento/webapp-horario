@@ -1,9 +1,9 @@
-import Table from "./components/Table";
+import Home from "./home/page";
 
-export default function Home() {
-  return (
-    <div>
-      <Table />
-    </div>
-  );
+export default function Page() {
+	return (
+		<div>
+			<Home />
+		</div>
+	);
 }

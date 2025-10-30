@@ -107,12 +107,12 @@ export default function Modal({
 	if (!isOpen) return null;
 
 	return (
-		<div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50'>
-			<div className='bg-white rounded-2xl p-8 w-full max-w-5xl shadow-2xl'>
-				<div className='flex justify-center mb-6'>
-					<div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center'>
+		<div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+			<div className='bg-white rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-[95vw] sm:max-w-2xl lg:max-w-5xl shadow-2xl max-h-[90vh] overflow-y-auto'>
+				<div className='flex justify-center mb-4 sm:mb-6'>
+					<div className='w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center'>
 						<svg
-							className='w-8 h-8 text-green-600'
+							className='w-6 h-6 sm:w-8 sm:h-8 text-green-600'
 							fill='none'
 							stroke='currentColor'
 							viewBox='0 0 24 24'
@@ -127,16 +127,16 @@ export default function Modal({
 					</div>
 				</div>
 
-				<h2 className='text-2xl font-bold text-center mb-8 text-gray-800'>
+				<h2 className='text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-8 text-gray-800'>
 					Adicionar Aula
 				</h2>
 
 				{loading ? (
 					<div className='text-center py-8'>Carregando opções...</div>
 				) : (
-					<div className='grid grid-cols-3 gap-6 mb-8'>
+					<div className='grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8'>
 						<div className='flex flex-col'>
-							<label className='block text-sm font-semibold mb-3 text-gray-700 h-6'>
+							<label className='block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-gray-700'>
 								Disciplina
 							</label>
 							<select
@@ -144,8 +144,7 @@ export default function Modal({
 								onChange={(e) =>
 									setFormData({ ...formData, disciplinaId: e.target.value })
 								}
-								className='w-full h-12 border border-gray-300 rounded-lg pl-4 pr-8 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-								style={{ backgroundPosition: "right 0.5rem center" }}
+								className='w-full h-10 sm:h-12 border border-gray-300 rounded-lg pl-3 sm:pl-4 pr-8 text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 							>
 								<option value=''>Selecione a disciplina</option>
 								{disciplinas.map((disciplina) => (
@@ -160,7 +159,7 @@ export default function Modal({
 						</div>
 
 						<div className='flex flex-col'>
-							<label className='block text-sm font-semibold mb-3 text-gray-700 h-6'>
+							<label className='block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-gray-700'>
 								Professor
 							</label>
 							<select
@@ -168,8 +167,7 @@ export default function Modal({
 								onChange={(e) =>
 									setFormData({ ...formData, professorId: e.target.value })
 								}
-								className='w-full h-12 border border-gray-300 rounded-lg pl-4 pr-8 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-								style={{ backgroundPosition: "right 0.5rem center" }}
+								className='w-full h-10 sm:h-12 border border-gray-300 rounded-lg pl-3 sm:pl-4 pr-8 text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 							>
 								<option value=''>Selecione o professor</option>
 								{professores.map((professor) => (
@@ -185,27 +183,29 @@ export default function Modal({
 						</div>
 
 						<div className='flex flex-col'>
-							<label className='block text-sm font-semibold mb-3 text-gray-700 h-6'>
+							<label className='block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-gray-700'>
 								Horário
 							</label>
-							<div className='w-full h-12 border border-gray-300 rounded-lg px-4 text-gray-700 bg-gray-50 flex items-center'>
-								{dia} - {semestre}
+							<div className='w-full h-10 sm:h-12 border border-gray-300 rounded-lg px-3 sm:px-4 text-sm sm:text-base text-gray-700 bg-gray-50 flex items-center'>
+								<span className='truncate'>
+									{dia} - {semestre}
+								</span>
 							</div>
 						</div>
 					</div>
 				)}
 
-				<div className='flex justify-center gap-4'>
+				<div className='flex flex-col sm:flex-row justify-center gap-3 sm:gap-4'>
 					<button
 						onClick={onClose}
-						className='px-8 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors'
+						className='w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors text-sm sm:text-base'
 					>
 						Voltar
 					</button>
 					<button
 						onClick={handleSalvar}
 						disabled={loading}
-						className='px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400'
+						className='w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400 text-sm sm:text-base'
 					>
 						Criar
 					</button>
