@@ -3,7 +3,7 @@ import { InputCadastroProps } from "../interfaces/types";
 export default function InputCadastro(props: InputCadastroProps) {
 	return (
 		<div className='flex flex-col gap-1.5 sm:gap-2 py-2 sm:py-3 w-full'>
-			<label className='text-gray-800 font-medium text-xs sm:text-sm lg:text-base'>
+			<label className='text-gray-800 font-bold text-xs sm:text-sm lg:text-base'>
 				{props.label}
 			</label>
 			<input

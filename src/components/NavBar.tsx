@@ -120,6 +120,17 @@ export default function NavBar() {
 									<span className='text-lg'>Cadastro Professor</span>
 								</Link>
 							</li>
+							<li>
+								<Link
+									href='/vincularDisciplinaProfessor'
+									onClick={() => setIsOpen(false)}
+									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+								>
+									<span className='text-lg'>
+										Vincular Professor a Disciplina
+									</span>
+								</Link>
+							</li>
 						</ul>
 					</nav>
 				</div>

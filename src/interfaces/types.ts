@@ -38,11 +38,6 @@ export interface Professor {
 	titulacao?: string;
 }
 
-export interface Disciplina {
-	idDisciplina: number;
-	nomeDisciplina: string;
-}
-
 export interface ModalData {
 	dia: string;
 	semestre: string;
@@ -53,7 +48,7 @@ export interface InputCadastroProps {
 	label: string;
 	type: string;
 	placeHolder: string;
-	value: string;
+	value?: string;
 	onChange?: () => void;
 }
 
@@ -71,4 +66,16 @@ export interface FormProps {
 
 export interface DisponibilidadeDiasProps {
 	onChange?: (diasSelecionados: string[]) => void;
+}
+
+export interface Disciplina {
+	idDisciplina: number;
+	nomeDisciplina: string;
+	[t: string]: string | number;
+}
+
+export interface DisciplinaSelectorProps {
+	courseId?: number; // padrão 2
+	onChange?: (ids: number[], disciplinas?: Disciplina[]) => void;
+	className?: string;
 }

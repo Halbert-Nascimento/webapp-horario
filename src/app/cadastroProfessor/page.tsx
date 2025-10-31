@@ -14,19 +14,16 @@ export default function CadastroProfessor() {
 					label='Nome do Professor'
 					placeHolder='Ex: Sandir'
 					type='text'
-					value=''
 				/>
 				<InputCadastro
 					label='Curso do Professor'
 					placeHolder='Escolha o curso'
 					type='text'
-					value=''
 				/>
 				<InputCadastro
 					label='Titulação'
 					placeHolder='Escolha a titulação'
 					type='text'
-					value=''
 				/>
 				<DisponibilidadeDias />
 			</FormCadastro>

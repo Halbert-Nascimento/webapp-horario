@@ -28,7 +28,7 @@ export default function DisponibilidadeDias({
 
 	return (
 		<div className='flex flex-col gap-3 sm:gap-4 py-2 sm:py-3 w-full'>
-			<label className='text-gray-800 font-medium text-xs sm:text-sm lg:text-base text-center'>
+			<label className='text-gray-800 font-bold text-xs sm:text-sm lg:text-base text-center'>
 				Escolha as disponibilidades do professor
 			</label>
 			<div className='flex flex-wrap justify-center gap-2 sm:gap-3'>
