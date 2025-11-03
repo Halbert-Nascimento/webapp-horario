@@ -9,12 +9,12 @@ export default function DisponibilidadeDias({
 	const [diasSelecionados, setDiasSelecionados] = useState<string[]>([]);
 
 	const dias = [
-		{ id: "seg", label: "SEG" },
-		{ id: "ter", label: "TER" },
-		{ id: "qua", label: "QUA" },
-		{ id: "qui", label: "QUI" },
-		{ id: "sex", label: "SEX" },
-		{ id: "sab", label: "SAB" },
+		{ id: "1", label: "SEG" },
+		{ id: "2", label: "TER" },
+		{ id: "3", label: "QUA" },
+		{ id: "4", label: "QUI" },
+		{ id: "5", label: "SEX" },
+		{ id: "6", label: "SAB" },
 	];
 
 	const toggleDia = (diaId: string) => {

@@ -1,6 +1,7 @@
 "use client";
 import api from "@/services/api";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import { Professor, Disciplina, ModalProps } from "../interfaces/types";
 
@@ -16,6 +17,7 @@ export default function Modal({
 	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
 	const [loading, setLoading] = useState(false);
+	const [loadingProfessores, setLoadingProfessores] = useState(false);
 	const [formData, setFormData] = useState({
 		professorId: "",
 		disciplinaId: "",
@@ -23,28 +25,49 @@ export default function Modal({
 
 	useEffect(() => {
 		if (isOpen) {
-			carregarDados();
+			carregarDisciplinas();
 			setFormData({
 				professorId: "",
 				disciplinaId: "",
 			});
+			setProfessores([]);
 		}
 	}, [isOpen]);
 
-	const carregarDados = async () => {
+	// Carregar professores quando uma disciplina for selecionada
+	useEffect(() => {
+		if (formData.disciplinaId) {
+			carregarProfessoresPorDisciplina(parseInt(formData.disciplinaId));
+		} else {
+			setProfessores([]);
+			setFormData((prev) => ({ ...prev, professorId: "" }));
+		}
+	}, [formData.disciplinaId]);
+
+	const carregarDisciplinas = async () => {
 		try {
 			setLoading(true);
-			const [professoresResponse, disciplinasResponse] = await Promise.all([
-				api.get<Professor[]>("/professor"),
-				api.get<Disciplina[]>("/disciplina"),
-			]);
-
-			setProfessores(professoresResponse.data);
+			const disciplinasResponse = await api.get<Disciplina[]>("/disciplina");
 			setDisciplinas(disciplinasResponse.data);
 		} catch (error) {
-			console.error("Erro ao carregar professores e disciplinas:", error);
+			console.error("Erro ao carregar disciplinas:", error);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const carregarProfessoresPorDisciplina = async (idDisciplina: number) => {
+		try {
+			setLoadingProfessores(true);
+			const professoresResponse = await api.get<Professor[]>(
+				`/professorDisciplina/${idDisciplina}`,
+			);
+			setProfessores(professoresResponse.data);
+		} catch (error) {
+			console.error("Erro ao carregar professores:", error);
+			setProfessores([]);
+		} finally {
+			setLoadingProfessores(false);
 		}
 	};
 
@@ -63,7 +86,7 @@ export default function Modal({
 
 	const handleSalvar = async () => {
 		if (!formData.professorId || !formData.disciplinaId) {
-			alert("Por favor, selecione o professor e a disciplina");
+			toast.error("Por favor, selecione o professor e a disciplina");
 			return;
 		}
 
@@ -75,7 +98,7 @@ export default function Modal({
 		);
 
 		if (!professorSelecionado || !disciplinaSelecionada) {
-			alert("Erro ao encontrar professor ou disciplina selecionados");
+			toast.error("Erro ao encontrar professor ou disciplina selecionados");
 			return;
 		}
 
@@ -93,14 +116,33 @@ export default function Modal({
 			};
 
 			await api.post("/celula", payload);
+			toast.success("Aula cadastrada com sucesso!");
 			onSave(conteudo);
 		} catch (error: any) {
 			console.error("Erro ao salvar:", error);
-			alert(
-				`Erro ao salvar os dados: ${
-					error.response?.data?.message || error.message
-				}`,
-			);
+
+			// Extrair a mensagem de erro da API
+			let mensagemErro = "Erro ao salvar os dados";
+
+			if (error.response?.data?.error) {
+				// Prioriza o campo "error" da resposta da API
+				mensagemErro = error.response.data.error;
+			} else if (error.response?.data?.message) {
+				mensagemErro = error.response.data.message;
+			} else if (error.response?.data?.msg) {
+				mensagemErro = error.response.data.msg;
+			} else if (error.response?.data?.mensagem) {
+				mensagemErro = error.response.data.mensagem;
+			} else if (typeof error.response?.data === "string") {
+				mensagemErro = error.response.data;
+			} else if (error.message) {
+				mensagemErro = error.message;
+			}
+
+			toast.error(mensagemErro, {
+				duration: 4000,
+				position: "top-right",
+			});
 		}
 	};
 
@@ -142,7 +184,11 @@ export default function Modal({
 							<select
 								value={formData.disciplinaId}
 								onChange={(e) =>
-									setFormData({ ...formData, disciplinaId: e.target.value })
+									setFormData({
+										...formData,
+										disciplinaId: e.target.value,
+										professorId: "",
+									})
 								}
 								className='w-full h-10 sm:h-12 border border-gray-300 rounded-lg pl-3 sm:pl-4 pr-8 text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 							>
@@ -167,9 +213,16 @@ export default function Modal({
 								onChange={(e) =>
 									setFormData({ ...formData, professorId: e.target.value })
 								}
-								className='w-full h-10 sm:h-12 border border-gray-300 rounded-lg pl-3 sm:pl-4 pr-8 text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+								disabled={!formData.disciplinaId || loadingProfessores}
+								className='w-full h-10 sm:h-12 border border-gray-300 rounded-lg pl-3 sm:pl-4 pr-8 text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed'
 							>
-								<option value=''>Selecione o professor</option>
+								<option value=''>
+									{loadingProfessores
+										? "Carregando professores..."
+										: !formData.disciplinaId
+										? "Selecione uma disciplina primeiro"
+										: "Selecione o professor"}
+								</option>
 								{professores.map((professor) => (
 									<option
 										key={professor.idProfessor}
@@ -204,7 +257,7 @@ export default function Modal({
 					</button>
 					<button
 						onClick={handleSalvar}
-						disabled={loading}
+						disabled={loading || loadingProfessores}
 						className='w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400 text-sm sm:text-base'
 					>
 						Criar

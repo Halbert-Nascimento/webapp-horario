@@ -4,6 +4,7 @@ export default function ButtonCadastro(props: ButtonCadastroProps) {
 	return (
 		<button
 			onClick={props.onClick}
+			type={props.text === "Voltar" ? "button" : "submit"} // ✅ Voltar não envia
 			className={`w-full px-4 sm:px-7 lg:px-8 py-2 sm:py-2.5 lg:py-3 border-black ${
 				props.style
 			} ${

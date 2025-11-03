@@ -1,9 +1,12 @@
 "use client";
 import api from "@/services/api";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import { CelulaViewInterface, ModalData } from "../interfaces/types";
-import ModalTable from "./ModalTable";
+
+import ModalCreate from "./ModalCreate";
+import ModalDelete from "./ModalDelete";
 
 const dias = [
 	"Segunda-feira",
@@ -29,10 +32,16 @@ const gerarSemestres = (quantidade: number, apenasImpares = true) => {
 
 export default function Tabela() {
 	const [dados, setDados] = useState<{ [key: string]: string }>({});
+	const [celulasMap, setCelulasMap] = useState<{ [key: string]: number }>({});
 	const [apenasImpares, setApenasImpares] = useState(true);
 	const [loading, setLoading] = useState(true);
 	const [modalAberto, setModalAberto] = useState(false);
+	const [modalDeleteAberto, setModalDeleteAberto] = useState(false);
 	const [modalData, setModalData] = useState<ModalData | null>(null);
+	const [celulaParaDeletar, setCelulaParaDeletar] = useState<{
+		id: number;
+		conteudo: string;
+	} | null>(null);
 	const semestres = gerarSemestres(8, apenasImpares);
 
 	// Converter número do dia da semana para nome
@@ -78,6 +87,7 @@ export default function Tabela() {
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
+			const celulasIdMap: { [key: string]: number } = {};
 
 			celulasResponse.data.forEach((celula: CelulaViewInterface) => {
 				// Tratar dia_semana
@@ -107,6 +117,11 @@ export default function Tabela() {
 				// Criar a chave usando dia_semana e semestre
 				const chave = `${diaSemana}-${semestreNumero}º Semestre`;
 
+				// Armazenar o ID da célula
+				if (celula.idCelula !== undefined && celula.idCelula !== null) {
+					celulasIdMap[chave] = celula.idCelula;
+				}
+
 				// Buscar informações adicionais do professor e disciplina usando NOMES
 				const professorInfo = professoresMap.get(celula.nomeProfessor);
 				const disciplinaInfo = disciplinasMap.get(celula.nomeDisciplina);
@@ -132,8 +147,10 @@ export default function Tabela() {
 			});
 
 			setDados(dadosMapeados);
+			setCelulasMap(celulasIdMap);
 		} catch (error) {
 			console.error("Erro ao carregar dados:", error);
+			toast.error("Erro ao carregar dados da tabela");
 		} finally {
 			setLoading(false);
 		}
@@ -145,8 +162,45 @@ export default function Tabela() {
 
 	const handleCellClick = (dia: string, semestre: string) => {
 		const chave = `${dia}-${semestre}`;
-		setModalData({ dia, semestre, chave });
-		setModalAberto(true);
+		const idCelula = celulasMap[chave];
+		const conteudo = dados[chave];
+
+		// Verifica se tem conteúdo (célula preenchida)
+		if (conteudo && conteudo.trim() !== "") {
+			// Célula já existe - abrir modal de exclusão
+			setCelulaParaDeletar({ id: idCelula || 0, conteudo });
+			setModalDeleteAberto(true);
+		} else {
+			// Célula vazia - abrir modal de criação
+			setModalData({ dia, semestre, chave });
+			setModalAberto(true);
+		}
+	};
+
+	const handleDeletar = async () => {
+		if (!celulaParaDeletar) return;
+
+		try {
+			await api.delete(`/celula/${celulaParaDeletar.id}`);
+			toast.success("Aula excluída com sucesso!");
+			setModalDeleteAberto(false);
+			setCelulaParaDeletar(null);
+			await carregarDados();
+		} catch (error: any) {
+			console.error("Erro ao deletar:", error);
+
+			let mensagemErro = "Erro ao excluir a aula";
+
+			if (error.response?.data?.error) {
+				mensagemErro = error.response.data.error;
+			} else if (error.response?.data?.message) {
+				mensagemErro = error.response.data.message;
+			} else if (typeof error.response?.data === "string") {
+				mensagemErro = error.response.data;
+			}
+
+			toast.error(mensagemErro);
+		}
 	};
 
 	const handleSalvar = async (conteudo: string) => {
@@ -164,6 +218,11 @@ export default function Tabela() {
 	const handleFecharModal = () => {
 		setModalAberto(false);
 		setModalData(null);
+	};
+
+	const handleFecharModalDelete = () => {
+		setModalDeleteAberto(false);
+		setCelulaParaDeletar(null);
 	};
 
 	if (loading) {
@@ -236,15 +295,25 @@ export default function Tabela() {
 				</table>
 			</div>
 
-			{/* Modal */}
+			{/* Modal de Criação */}
 			{modalData && (
-				<ModalTable
+				<ModalCreate
 					isOpen={modalAberto}
 					onClose={handleFecharModal}
 					onSave={handleSalvar}
 					dia={modalData.dia}
 					semestre={modalData.semestre}
 					idGrade={1}
+				/>
+			)}
+
+			{/* Modal de Exclusão */}
+			{celulaParaDeletar && (
+				<ModalDelete
+					isOpen={modalDeleteAberto}
+					onClose={handleFecharModalDelete}
+					onDelete={handleDeletar}
+					conteudo={celulaParaDeletar.conteudo}
 				/>
 			)}
 		</div>

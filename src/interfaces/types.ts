@@ -44,12 +44,42 @@ export interface ModalData {
 	chave: string;
 }
 
+export interface DisponibilidadeDiasProps {
+	onChange?: (diasSelecionados: string[]) => void;
+}
+
+export interface Disciplina {
+	idDisciplina: number;
+	nomeDisciplina: string;
+	[key: string]: string | number; // Fixed: was [t: string]
+}
+
+export interface DisciplinaSelectorProps {
+	courseId?: number;
+	onChange?: (disciplinasIds: number[], professorId: number | null) => void;
+	className?: string;
+}
+
+export interface ModalDeleteProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onDelete: () => void;
+	conteudo: string;
+}
+
+export interface FormCadastroProps {
+	children: React.ReactNode;
+	onSubmit?: (e: React.FormEvent) => void;
+}
+
+// Renamed to avoid conflict with InputCadastroPropsAlt below
 export interface InputCadastroProps {
 	label: string;
 	type: string;
 	placeHolder: string;
 	value?: string;
-	onChange?: () => void;
+	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; // More specific type
+	disabled?: boolean;
 }
 
 export interface ButtonCadastroProps {
@@ -64,18 +94,11 @@ export interface FormProps {
 	children: React.ReactNode;
 }
 
-export interface DisponibilidadeDiasProps {
-	onChange?: (diasSelecionados: string[]) => void;
-}
-
-export interface Disciplina {
-	idDisciplina: number;
-	nomeDisciplina: string;
-	[t: string]: string | number;
-}
-
-export interface DisciplinaSelectorProps {
-	courseId?: number; // padrão 2
-	onChange?: (ids: number[], disciplinas?: Disciplina[]) => void;
-	className?: string;
+export interface SelectCadastroProps {
+	label: string;
+	value: string;
+	onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+	disabled?: boolean;
+	options: { value: string | number; label: string }[];
+	placeholder?: string;
 }
