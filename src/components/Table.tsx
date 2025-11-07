@@ -1,9 +1,12 @@
 "use client";
 import api from "@/services/api";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import { CelulaViewInterface, ModalData } from "../interfaces/types";
-import ModalTable from "./ModalTable";
+
+import ModalCreate from "./ModalCreate";
+import ModalDelete from "./ModalDelete";
 
 const dias = [
 	"Segunda-feira",
@@ -29,10 +32,16 @@ const gerarSemestres = (quantidade: number, apenasImpares = true) => {
 
 export default function Tabela() {
 	const [dados, setDados] = useState<{ [key: string]: string }>({});
+	const [celulasMap, setCelulasMap] = useState<{ [key: string]: number }>({});
 	const [apenasImpares, setApenasImpares] = useState(true);
 	const [loading, setLoading] = useState(true);
 	const [modalAberto, setModalAberto] = useState(false);
+	const [modalDeleteAberto, setModalDeleteAberto] = useState(false);
 	const [modalData, setModalData] = useState<ModalData | null>(null);
+	const [celulaParaDeletar, setCelulaParaDeletar] = useState<{
+		id: number;
+		conteudo: string;
+	} | null>(null);
 	const semestres = gerarSemestres(8, apenasImpares);
 
 	// Converter número do dia da semana para nome
@@ -78,6 +87,7 @@ export default function Tabela() {
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
+			const celulasIdMap: { [key: string]: number } = {};
 
 			celulasResponse.data.forEach((celula: CelulaViewInterface) => {
 				// Tratar dia_semana
@@ -107,6 +117,11 @@ export default function Tabela() {
 				// Criar a chave usando dia_semana e semestre
 				const chave = `${diaSemana}-${semestreNumero}º Semestre`;
 
+				// Armazenar o ID da célula
+				if (celula.idCelula !== undefined && celula.idCelula !== null) {
+					celulasIdMap[chave] = celula.idCelula;
+				}
+
 				// Buscar informações adicionais do professor e disciplina usando NOMES
 				const professorInfo = professoresMap.get(celula.nomeProfessor);
 				const disciplinaInfo = disciplinasMap.get(celula.nomeDisciplina);
@@ -132,8 +147,10 @@ export default function Tabela() {
 			});
 
 			setDados(dadosMapeados);
+			setCelulasMap(celulasIdMap);
 		} catch (error) {
 			console.error("Erro ao carregar dados:", error);
+			toast.error("Erro ao carregar dados da tabela");
 		} finally {
 			setLoading(false);
 		}
@@ -145,8 +162,45 @@ export default function Tabela() {
 
 	const handleCellClick = (dia: string, semestre: string) => {
 		const chave = `${dia}-${semestre}`;
-		setModalData({ dia, semestre, chave });
-		setModalAberto(true);
+		const idCelula = celulasMap[chave];
+		const conteudo = dados[chave];
+
+		// Verifica se tem conteúdo (célula preenchida)
+		if (conteudo && conteudo.trim() !== "") {
+			// Célula já existe - abrir modal de exclusão
+			setCelulaParaDeletar({ id: idCelula || 0, conteudo });
+			setModalDeleteAberto(true);
+		} else {
+			// Célula vazia - abrir modal de criação
+			setModalData({ dia, semestre, chave });
+			setModalAberto(true);
+		}
+	};
+
+	const handleDeletar = async () => {
+		if (!celulaParaDeletar) return;
+
+		try {
+			await api.delete(`/celula/${celulaParaDeletar.id}`);
+			toast.success("Aula excluída com sucesso!");
+			setModalDeleteAberto(false);
+			setCelulaParaDeletar(null);
+			await carregarDados();
+		} catch (error: any) {
+			console.error("Erro ao deletar:", error);
+
+			let mensagemErro = "Erro ao excluir a aula";
+
+			if (error.response?.data?.error) {
+				mensagemErro = error.response.data.error;
+			} else if (error.response?.data?.message) {
+				mensagemErro = error.response.data.message;
+			} else if (typeof error.response?.data === "string") {
+				mensagemErro = error.response.data;
+			}
+
+			toast.error(mensagemErro);
+		}
 	};
 
 	const handleSalvar = async (conteudo: string) => {
@@ -166,70 +220,100 @@ export default function Tabela() {
 		setModalData(null);
 	};
 
+	const handleFecharModalDelete = () => {
+		setModalDeleteAberto(false);
+		setCelulaParaDeletar(null);
+	};
+
 	if (loading) {
 		return (
-			<div className='flex justify-center items-center h-screen'>
+			<div className='flex justify-center items-center min-h-screen lg:ml-72'>
 				<div className='text-xl'>Carregando dados...</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className='overflow-auto max-w-2/3 h-[80vh] p-4'>
+		<div className='flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 lg:ml-72 pt-20'>
 			<button
 				onClick={() => setApenasImpares(!apenasImpares)}
-				className='mb-4 bg-blue-600 text-white px-4 py-2 rounded'
+				className='mb-4 bg-blue-800 text-white px-4 py-2 rounded text-sm sm:text-base'
 			>
-				Mostrar {apenasImpares ? "Semestres Pares" : "Semestres Ímpares"}
+				{apenasImpares ? "Semestres Pares" : "Semestres Ímpares"}
 			</button>
 
-			<table className='border-separate border-spacing-0 border text-center'>
-				<thead>
-					<tr className='bg-blue-900 text-white'>
-						<th className='p-2 w-40 min-w-40 max-w-40 h-20'>Dia</th>
-						{semestres.map((s) => (
-							<th key={s} className='p-2 w-48 min-w-48 max-w-48 h-20'>
-								{s}
+			<div className='w-full overflow-x-auto shadow-lg max-w-[95vw] lg:max-w-[1200px]'>
+				<table className='border-separate border-spacing-0 border text-center w-full'>
+					<thead>
+						<tr className='bg-blue-900 text-white'>
+							<th
+								className='p-1 sm:p-2 h-16 sm:h-20 border border-black text-xs sm:text-sm lg:text-base sticky left-0 z-20 bg-blue-900'
+								style={{ minWidth: "188px", width: "188px" }}
+							>
+								Dia
 							</th>
-						))}
-					</tr>
-				</thead>
-				<tbody>
-					{dias.map((dia) => (
-						<tr key={dia}>
-							<td className='border p-2 font-semibold w-40 min-w-40 max-w-40 bg-gray-50 sticky left-0 z-10 h-24'>
-								{dia}
-							</td>
-							{semestres.map((sem) => {
-								const chave = `${dia}-${sem}`;
-								const conteudo = dados[chave];
-								return (
-									<td
-										key={chave}
-										onClick={() => handleCellClick(dia, sem)}
-										className='border p-2 hover:bg-blue-50 cursor-pointer w-48 min-w-48 max-w-48 h-24 max-h-24 overflow-hidden'
-										title={conteudo || chave}
-									>
-										<div className='h-full flex items-center justify-center overflow-auto text-xs leading-tight whitespace-pre-line break-words'>
-											{conteudo || ""}
-										</div>
-									</td>
-								);
-							})}
+							{semestres.map((s) => (
+								<th
+									key={s}
+									className='p-1 sm:p-2 h-16 sm:h-20 border border-black text-xs sm:text-sm lg:text-base'
+									style={{ width: `${100 / semestres.length}%` }}
+								>
+									{s}
+								</th>
+							))}
 						</tr>
-					))}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{dias.map((dia) => (
+							<tr key={dia}>
+								<td
+									className='border p-1 sm:p-2 font-semibold bg-gray-50 sticky left-0 z-10 h-20 sm:h-24 text-xs sm:text-sm lg:text-base'
+									style={{ minWidth: "188px", width: "188px" }}
+								>
+									<div className='break-words'>{dia}</div>
+								</td>
+								{semestres.map((sem) => {
+									const chave = `${dia}-${sem}`;
+									const conteudo = dados[chave];
+									return (
+										<td
+											key={chave}
+											onClick={() => handleCellClick(dia, sem)}
+											className='border p-1 sm:p-2 hover:bg-blue-50 cursor-pointer h-20 sm:h-24 overflow-hidden'
+											style={{ width: `${100 / semestres.length}%` }}
+											title={conteudo || chave}
+										>
+											<div className='h-full flex items-center justify-center overflow-auto text-[10px] sm:text-xs leading-tight whitespace-pre-line break-words'>
+												{conteudo || ""}
+											</div>
+										</td>
+									);
+								})}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 
-			{/* Modal */}
+			{/* Modal de Criação */}
 			{modalData && (
-				<ModalTable
+				<ModalCreate
 					isOpen={modalAberto}
 					onClose={handleFecharModal}
 					onSave={handleSalvar}
 					dia={modalData.dia}
 					semestre={modalData.semestre}
 					idGrade={1}
+				/>
+			)}
+
+			{/* Modal de Exclusão */}
+			{celulaParaDeletar && (
+				<ModalDelete
+					isOpen={modalDeleteAberto}
+					onClose={handleFecharModalDelete}
+					onDelete={handleDeletar}
+					conteudo={celulaParaDeletar.conteudo}
 				/>
 			)}
 		</div>
