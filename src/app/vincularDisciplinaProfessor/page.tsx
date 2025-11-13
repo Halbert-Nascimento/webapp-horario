@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import DisciplinaSelector from "@/components/DisciplinaSelector";
-import FormCadastro from "@/components/FormCadastro";
 import Header from "@/components/Header";
 import NavBar from "@/components/NavBar";
+import DisciplinaSelector from "@/components/DisciplinaSelector";
+import FormCadastro from "@/components/FormCadastro";
+
 import api from "@/services/api";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function VincularDisciplinaProfessor() {
 	const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<
@@ -47,9 +48,6 @@ export default function VincularDisciplinaProfessor() {
 					idDisciplina: idDisciplina,
 					idProfessor: professorSelecionado,
 				};
-
-				console.log("📤 Enviando payload:", payload);
-
 				await api.post("/professorDisciplina", payload);
 			}
 
@@ -84,7 +82,7 @@ export default function VincularDisciplinaProfessor() {
 			<NavBar />
 			<div className='[&>div>div]:lg:max-w-3xl'>
 				<FormCadastro onSubmit={handleSubmit}>
-					<DisciplinaSelector onChange={handleDisciplinasChange} />
+					<DisciplinaSelector courseId={3} onChange={handleDisciplinasChange} />
 				</FormCadastro>
 			</div>
 		</>

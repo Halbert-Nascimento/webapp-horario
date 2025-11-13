@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Header from "@/components/Header";
 import NavBar from "@/components/NavBar";
 import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
+
 import api from "@/services/api";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function CadastroCurso() {
 	const [nomeCurso, setNomeCurso] = useState("");

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import NavBar from "@/components/NavBar";
 import Header from "@/components/Header";
+import NavBar from "@/components/NavBar";
 import InputCadastro from "@/components/InputCadastro";
 import SelectCadastro from "@/components/SelectCadastro";
 import FormCadastro from "@/components/FormCadastro";
+
 import api from "@/services/api";
 import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 
 interface Curso {
 	idCurso: number;
@@ -151,6 +152,14 @@ export default function CadastroDisciplina() {
 				<InputCadastro
 					label='Nome da Disciplina'
 					placeHolder='Ex: Práticas Orientadas'
+					type='text'
+					value={nomeDisciplina}
+					onChange={(e) => setNomeDisciplina(e.target.value)}
+					disabled={loading}
+				/>
+				<InputCadastro
+					label='Código da Disciplina'
+					placeHolder='Ex: PO001'
 					type='text'
 					value={nomeDisciplina}
 					onChange={(e) => setNomeDisciplina(e.target.value)}

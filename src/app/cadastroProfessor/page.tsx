@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import FormCadastro from "@/components/FormCadastro";
 import Header from "@/components/Header";
-import InputCadastro from "@/components/InputCadastro";
 import NavBar from "@/components/NavBar";
+import FormCadastro from "@/components/FormCadastro";
+import InputCadastro from "@/components/InputCadastro";
 import DisponibilidadeDias from "@/components/DisponibilidadeDias";
 import SelectCadastro from "@/components/SelectCadastro";
+
 import api from "@/services/api";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function CadastroProfessor() {
 	const [nomeProfessor, setNomeProfessor] = useState("");
@@ -159,6 +160,13 @@ export default function CadastroProfessor() {
 					options={opcoesTitulacao}
 					value={titulacao}
 					onChange={(e) => setTitulacao(e.target.value)}
+				/>
+				<InputCadastro
+					label='Currículo Lattes do Professor'
+					placeHolder='Ex: http://lattes.cnpq.br/1234567890123456'
+					type='text'
+					value={nomeProfessor}
+					onChange={(e) => setNomeProfessor(e.target.value)}
 				/>
 				<DisponibilidadeDias onChange={handleDisponibilidadeChange} />
 			</FormCadastro>
