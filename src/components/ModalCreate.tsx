@@ -51,6 +51,7 @@ export default function Modal({
 			setDisciplinas(disciplinasResponse.data);
 		} catch (error) {
 			console.error("Erro ao carregar disciplinas:", error);
+			toast.error("Erro ao carregar disciplinas");
 		} finally {
 			setLoading(false);
 		}
@@ -66,6 +67,7 @@ export default function Modal({
 		} catch (error) {
 			console.error("Erro ao carregar professores:", error);
 			setProfessores([]);
+			toast.error("Erro ao carregar professores");
 		} finally {
 			setLoadingProfessores(false);
 		}
@@ -86,7 +88,7 @@ export default function Modal({
 
 	const handleSalvar = async () => {
 		if (!formData.professorId || !formData.disciplinaId) {
-			toast.error("Por favor, selecione o professor e a disciplina");
+			toast.error("Por favor, selecione professor e disciplina");
 			return;
 		}
 
@@ -102,37 +104,38 @@ export default function Modal({
 			return;
 		}
 
-		const conteudo = `${disciplinaSelecionada.nomeDisciplina}\n${professorSelecionado.nomeProfessor}`;
+		// Extrair o número do semestre (ex: "1º Semestre" -> 1)
 		const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
-		const diaSemanaNumero = getDiaSemanaNumero(dia);
+
+		// Obter o número do dia da semana
+		const idDiaSemana = getDiaSemanaNumero(dia);
+
+		// Construir conteúdo para exibição na célula
+		const conteudo = `${disciplinaSelecionada.codigoDisciplina} - ${disciplinaSelecionada.nomeDisciplina}\n${disciplinaSelecionada.tipoSala}\n${professorSelecionado.nomeProfessor} (${professorSelecionado.titulacao})`;
 
 		try {
 			const payload = {
-				idGrade: idGrade,
+				idGrade: idGrade, // ID do semestre letivo
 				idDisciplina: parseInt(formData.disciplinaId),
 				idProfessor: parseInt(formData.professorId),
-				dia_semana: diaSemanaNumero,
-				semestre: semestreNumero,
+				idDiaSemana: idDiaSemana, // 1=Segunda, 2=Terça, etc
+				semestre: semestreNumero, // 1, 2, 3, 4, etc (semestre do curso)
 			};
+
+			console.log("📤 Enviando payload:", payload);
 
 			await api.post("/celula", payload);
 			toast.success("Aula cadastrada com sucesso!");
 			onSave(conteudo);
 		} catch (error: any) {
-			console.error("Erro ao salvar:", error);
-
-			// Extrair a mensagem de erro da API
 			let mensagemErro = "Erro ao salvar os dados";
 
 			if (error.response?.data?.error) {
-				// Prioriza o campo "error" da resposta da API
 				mensagemErro = error.response.data.error;
 			} else if (error.response?.data?.message) {
 				mensagemErro = error.response.data.message;
 			} else if (error.response?.data?.msg) {
 				mensagemErro = error.response.data.msg;
-			} else if (error.response?.data?.mensagem) {
-				mensagemErro = error.response.data.mensagem;
 			} else if (typeof error.response?.data === "string") {
 				mensagemErro = error.response.data;
 			} else if (error.message) {
@@ -141,7 +144,7 @@ export default function Modal({
 
 			toast.error(mensagemErro, {
 				duration: 4000,
-				position: "top-right",
+				position: "top-center",
 			});
 		}
 	};
@@ -150,7 +153,7 @@ export default function Modal({
 
 	return (
 		<div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-			<div className='bg-white rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-[95vw] sm:max-w-2xl lg:max-w-5xl shadow-2xl max-h-[90vh] overflow-y-auto'>
+			<div className='bg-white rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-[95vw] sm:max-w-2xl lg:max-w-4xl shadow-2xl max-h-[90vh] overflow-y-auto'>
 				<div className='flex justify-center mb-4 sm:mb-6'>
 					<div className='w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center'>
 						<svg
@@ -198,7 +201,7 @@ export default function Modal({
 										key={disciplina.idDisciplina}
 										value={disciplina.idDisciplina}
 									>
-										{disciplina.nomeDisciplina}
+										{disciplina.codigoDisciplina} - {disciplina.nomeDisciplina}
 									</option>
 								))}
 							</select>
@@ -218,10 +221,10 @@ export default function Modal({
 							>
 								<option value=''>
 									{loadingProfessores
-										? "Carregando professores..."
+										? "Carregando..."
 										: !formData.disciplinaId
-										? "Selecione uma disciplina primeiro"
-										: "Selecione o professor"}
+										? "Selecione disciplina"
+										: "Selecione professor"}
 								</option>
 								{professores.map((professor) => (
 									<option

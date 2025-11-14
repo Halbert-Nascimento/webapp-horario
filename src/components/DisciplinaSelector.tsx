@@ -1,14 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import api from "@/services/api";
-
-import { Disciplina, DisciplinaSelectorProps } from "../interfaces/types";
-
-interface Professor {
-	idProfessor: number;
-	nomeProfessor: string;
-	titulacao?: string;
-}
+import {
+	Disciplina,
+	DisciplinaSelectorProps,
+	Professor,
+} from "@/interfaces/types";
+import { AxiosResponse } from "axios";
+import ResumoSelecao from "./ResumoSelecao";
 
 interface Curso {
 	idCurso: number;
@@ -22,9 +21,9 @@ export default function DisciplinaSelector({
 	className = "",
 }: DisciplinaSelectorProps) {
 	const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [curso, setCurso] = useState<Curso | null>(null);
 	const [selecionados, setSelecionados] = useState<number[]>([]);
+	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [professorSelecionado, setProfessorSelecionado] = useState<
 		number | null
 	>(null);
@@ -38,14 +37,23 @@ export default function DisciplinaSelector({
 	useEffect(() => {
 		const carregarProfessores = async () => {
 			try {
-				const response = await api.get<Professor[]>(`/professor`);
-				const professoresUnicos = response.data.filter(
+				const response: AxiosResponse<Professor[]> = await api.get(
+					"/professor",
+				);
+
+				const professoresData: Professor[] = Array.isArray(response.data)
+					? response.data
+					: [];
+
+				const professoresUnicos = professoresData.filter(
 					(prof, index, self) =>
 						index === self.findIndex((p) => p.idProfessor === prof.idProfessor),
 				);
-				setProfessores(professoresUnicos || []);
+
+				setProfessores(professoresUnicos);
 			} catch (err) {
 				console.error("Erro ao carregar professores:", err);
+				setProfessores([]);
 			}
 		};
 
@@ -65,30 +73,27 @@ export default function DisciplinaSelector({
 				setLoading(true);
 				setError(null);
 
-				console.log("🔍 Buscando curso:", courseId);
+				// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
+				const [cursoRes, disciplinasRes]: [any, AxiosResponse<Disciplina[]>] =
+					await Promise.all([
+						api.get(`/curso/${courseId}`),
+						api.get<Disciplina[]>(`/disciplina/curso/${courseId}`),
+					]);
 
-				// Buscar dados do curso e disciplinas em paralelo
-				const [cursoRes, disciplinasRes] = await Promise.all([
-					api.get<Curso>(`/curso/${courseId}`),
-					api.get<Disciplina[]>(`/disciplina/curso/${courseId}`),
-				]);
-
-				console.log("📚 Resposta curso completa:", cursoRes);
-				console.log("📚 Dados do curso:", cursoRes.data);
-				console.log("📚 Tipo de cursoRes.data:", typeof cursoRes.data);
-
-				// Verificar se os dados vêm dentro de um wrapper
-				const dadosCurso = cursoRes.data?.data || cursoRes.data;
-
-				console.log("✅ Dados processados do curso:", dadosCurso);
+				// A API retorna um array, pegar o primeiro elemento
+				const dadosCurso = Array.isArray(cursoRes.data)
+					? cursoRes.data[0]
+					: cursoRes.data;
 
 				// Definir curso
-				setCurso(dadosCurso);
+				setCurso(dadosCurso || null);
 
-				// Processar disciplinas
-				const disciplinasArray = Array.isArray(disciplinasRes.data)
+				// Processar disciplinas com tipagem explícita
+				const disciplinasArray: Disciplina[] = Array.isArray(
+					disciplinasRes.data,
+				)
 					? disciplinasRes.data
-					: disciplinasRes.data?.data || [];
+					: [];
 
 				const disciplinasUnicas = disciplinasArray.filter(
 					(disc, index, self) =>
@@ -96,12 +101,9 @@ export default function DisciplinaSelector({
 						self.findIndex((d) => d.idDisciplina === disc.idDisciplina),
 				);
 
-				console.log("📖 Disciplinas carregadas:", disciplinasUnicas);
-
 				setDisciplinas(disciplinasUnicas || []);
 			} catch (err: any) {
-				console.error("❌ Erro ao carregar dados:", err);
-				console.error("❌ Resposta do erro:", err.response?.data);
+				console.error("Erro ao carregar dados:", err);
 				setError("Erro ao carregar dados");
 			} finally {
 				setLoading(false);
@@ -116,17 +118,31 @@ export default function DisciplinaSelector({
 			? selecionados.filter((i) => i !== id)
 			: [...selecionados, id];
 		setSelecionados(novo);
+
+		// Chamar onChange com a assinatura correta: (disciplinasIds, professorId)
 		onChange?.(novo, professorSelecionado);
 	};
 
-	const handleProfessorChange = (profId: number | null) => {
-		setProfessorSelecionado(profId);
-		onChange?.(selecionados, profId);
+	const removerDisciplina = (id: number) => {
+		const novo = selecionados.filter((i) => i !== id);
+		setSelecionados(novo);
+
+		// Chamar onChange com a assinatura correta: (disciplinasIds, professorId)
+		onChange?.(novo, professorSelecionado);
+	};
+
+	const handleProfessorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const professorId = e.target.value ? Number(e.target.value) : null;
+		setProfessorSelecionado(professorId);
+
+		// Notificar a mudança do professor
+		onChange?.(selecionados, professorId);
 	};
 
 	// Agrupar disciplinas por semestre
 	const disciplinasPorSemestre = disciplinas.reduce((acc, disc) => {
-		const semestre = disc.semestreDisciplina;
+		// Se semestreDisciplina não existe, atribuir ao semestre 1 como fallback
+		const semestre = disc.semestreDisciplina || 1;
 		if (!acc[semestre]) {
 			acc[semestre] = [];
 		}
@@ -139,40 +155,45 @@ export default function DisciplinaSelector({
 		? Array.from({ length: curso.duracaoSemestres }, (_, i) => i + 1)
 		: [];
 
-	console.log("🎨 Renderizando - curso:", curso);
-	console.log("🎨 Renderizando - semestres:", semestres);
-
 	// Filtrar disciplinas do semestre selecionado
 	const disciplinasFiltradas = semestreSelecionado
 		? disciplinasPorSemestre[semestreSelecionado] || []
 		: [];
+
+	// Obter disciplinas selecionadas
+	const disciplinasSelecionadas = disciplinas.filter((d) =>
+		selecionados.includes(d.idDisciplina),
+	);
+
+	// Obter nome do professor selecionado
+	const professorSelecionadoNome = professores.find(
+		(p) => p.idProfessor === professorSelecionado,
+	)?.nomeProfessor;
 
 	if (error) {
 		return <span className='text-sm text-red-600'>{error}</span>;
 	}
 
 	return (
-		<div className={`flex flex-col gap-4 ${className}`}>
-			{/* Select de Professor */}
+		<div className={`flex flex-col gap-6 ${className}`}>
+			{/* Seletor de Professor */}
 			<div className='flex flex-col gap-2'>
-				<label className='text-gray-800 font-bold text-xs sm:text-sm lg:text-base'>
-					Selecione o Professor
+				<label
+					htmlFor='professor-select'
+					className='text-gray-800 font-semibold text-base sm:text-lg'
+				>
+					Selecione o professor
 				</label>
 				<select
+					id='professor-select'
 					value={professorSelecionado || ""}
-					onChange={(e) =>
-						handleProfessorChange(Number(e.target.value) || null)
-					}
-					className='w-full px-4 py-3.5 border-2 border-gray-800 rounded-2xl text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:border-blue-600 transition-colors'
+					onChange={handleProfessorChange}
+					className='w-full h-10 sm:h-12 border-2 border-gray-300 rounded-2xl px-3 sm:px-4 text-sm sm:text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 				>
 					<option value=''>Selecione um professor</option>
 					{professores.map((prof) => (
-						<option
-							key={`professor-${prof.idProfessor}`}
-							value={prof.idProfessor}
-						>
+						<option key={prof.idProfessor} value={prof.idProfessor}>
 							{prof.nomeProfessor}
-							{prof.titulacao && ` (${prof.titulacao})`}
 						</option>
 					))}
 				</select>
@@ -204,7 +225,7 @@ export default function DisciplinaSelector({
 										key={`semestre-${semestre}`}
 										type='button'
 										onClick={() => setSemestreSelecionado(semestre)}
-										className={`px-6 py-2.5 rounded-lg border-2 transition-colors font-medium text-sm sm:text-base
+										className={`px-6 py-2.5 rounded-2xl border-2 transition-colors font-medium text-sm sm:text-base
                                         ${
 																					semestreSelecionado === semestre
 																						? "bg-green-700 text-white border-green-700 hover:bg-green-800 hover:border-green-800"
@@ -234,7 +255,7 @@ export default function DisciplinaSelector({
 													key={`disciplina-${id}`}
 													type='button'
 													onClick={() => toggle(id)}
-													className={`px-4 py-2 rounded-lg border-2 transition-colors text-sm sm:text-base whitespace-nowrap
+													className={`px-4 py-2 rounded-2xl border-2 transition-colors text-sm sm:text-base whitespace-nowrap
                                                     ${
 																											ativo
 																												? "bg-blue-800 text-white border-blue-800 hover:bg-blue-950 hover:border-blue-950"
@@ -266,11 +287,18 @@ export default function DisciplinaSelector({
 					<div className='flex flex-col gap-2 text-sm text-gray-600'>
 						<span>❌ Nenhum curso encontrado</span>
 						<span className='text-xs text-gray-500'>
-							courseId: {courseId} | curso: {curso ? "carregado" : "null"}
+							Verifique se o curso existe no backend
 						</span>
 					</div>
 				)}
 			</div>
+
+			{/* Resumo das Disciplinas Selecionadas */}
+			<ResumoSelecao
+				professorNome={professorSelecionadoNome}
+				disciplinas={disciplinasSelecionadas}
+				onRemoverDisciplina={removerDisciplina}
+			/>
 		</div>
 	);
 }

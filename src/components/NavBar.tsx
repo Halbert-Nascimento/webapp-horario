@@ -131,6 +131,15 @@ export default function NavBar() {
 									</span>
 								</Link>
 							</li>
+							<li>
+								<Link
+									href='/cadastroSala'
+									onClick={() => setIsOpen(false)}
+									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+								>
+									<span className='text-lg'>Cadastrar Sala</span>
+								</Link>
+							</li>
 						</ul>
 					</nav>
 				</div>

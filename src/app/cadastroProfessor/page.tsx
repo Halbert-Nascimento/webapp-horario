@@ -15,6 +15,7 @@ export default function CadastroProfessor() {
 	const [nomeProfessor, setNomeProfessor] = useState("");
 	const [email, setEmail] = useState("");
 	const [titulacao, setTitulacao] = useState("");
+	const [curriculoLattes, setCurriculoLattes] = useState("");
 	const [diasSelecionados, setDiasSelecionados] = useState<string[]>([]);
 	const [loading, setLoading] = useState(false);
 
@@ -68,14 +69,21 @@ export default function CadastroProfessor() {
 				nomeProfessor: nomeProfessor.trim(),
 				email: email.trim(),
 				titulacao: titulacao.trim(),
+				curriculo_lattes: curriculoLattes.trim() || null,
+				coordenador_idProfessor: null, // Definir como null ou um ID específico se necessário
 			};
 
+			console.log("📤 Enviando payload professor:", payloadProfessor);
+
 			const responseProfessor = await api.post("/professor", payloadProfessor);
+
+			console.log("✅ Resposta professor:", responseProfessor.data);
 
 			// 2. Buscar o ID do professor cadastrado
 			const idProfessor =
 				responseProfessor.data.data?.idProfessor ||
-				responseProfessor.data.idProfessor;
+				responseProfessor.data.idProfessor ||
+				responseProfessor.data.insertId;
 
 			if (!idProfessor) {
 				// Se não retornou o ID, buscar todos os professores e pegar o último
@@ -97,6 +105,7 @@ export default function CadastroProfessor() {
 						idDiaSemana: parseInt(idDiaSemana),
 					};
 
+					console.log("📤 Enviando disponibilidade:", payloadDisponibilidade);
 					await api.post("/disponibilidade", payloadDisponibilidade);
 				}
 			} else {
@@ -107,6 +116,7 @@ export default function CadastroProfessor() {
 						idDiaSemana: parseInt(idDiaSemana),
 					};
 
+					console.log("📤 Enviando disponibilidade:", payloadDisponibilidade);
 					await api.post("/disponibilidade", payloadDisponibilidade);
 				}
 			}
@@ -117,19 +127,31 @@ export default function CadastroProfessor() {
 			setNomeProfessor("");
 			setEmail("");
 			setTitulacao("");
+			setCurriculoLattes("");
 			setDiasSelecionados([]);
 		} catch (error: any) {
+			console.error("❌ ERRO completo:", error);
+			console.error("❌ Resposta da API:", error.response?.data);
+
 			let mensagemErro = "Erro ao cadastrar professor";
 
-			if (error.response?.data?.message) {
-				mensagemErro = error.response.data.message;
-			} else if (error.response?.data?.error) {
-				mensagemErro = error.response.data.error;
+			if (error.response?.data) {
+				const errorData = error.response.data;
+				mensagemErro =
+					errorData.error ||
+					errorData.message ||
+					errorData.msg ||
+					errorData.mensagem ||
+					(typeof errorData === "string" ? errorData : mensagemErro);
 			} else if (error.message) {
 				mensagemErro = error.message;
 			}
 
-			toast.error(mensagemErro);
+			console.error("📢 Mensagem de erro extraída:", mensagemErro);
+
+			toast.error(mensagemErro, {
+				duration: 5000,
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -141,32 +163,36 @@ export default function CadastroProfessor() {
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
 				<InputCadastro
-					label='Nome do Professor'
+					label='Nome do Professor *'
 					placeHolder='Ex: Sandir'
 					type='text'
 					value={nomeProfessor}
 					onChange={(e) => setNomeProfessor(e.target.value)}
+					disabled={loading}
 				/>
 				<InputCadastro
-					label='Email do Professor'
+					label='Email do Professor *'
 					placeHolder='Ex: email@email.com'
 					type='email'
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
+					disabled={loading}
 				/>
 				<SelectCadastro
-					label='Titulação'
+					label='Titulação *'
 					placeholder='Escolha a titulação'
 					options={opcoesTitulacao}
 					value={titulacao}
 					onChange={(e) => setTitulacao(e.target.value)}
+					disabled={loading}
 				/>
 				<InputCadastro
 					label='Currículo Lattes do Professor'
 					placeHolder='Ex: http://lattes.cnpq.br/1234567890123456'
 					type='text'
-					value={nomeProfessor}
-					onChange={(e) => setNomeProfessor(e.target.value)}
+					value={curriculoLattes}
+					onChange={(e) => setCurriculoLattes(e.target.value)}
+					disabled={loading}
 				/>
 				<DisponibilidadeDias onChange={handleDisponibilidadeChange} />
 			</FormCadastro>
