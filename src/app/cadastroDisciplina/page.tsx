@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import NavBar from "@/components/NavBar";
 import Header from "@/components/Header";
+import NavBar from "@/components/NavBar";
 import InputCadastro from "@/components/InputCadastro";
 import SelectCadastro from "@/components/SelectCadastro";
 import FormCadastro from "@/components/FormCadastro";
+
 import api from "@/services/api";
 import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 
 interface Curso {
 	idCurso: number;
@@ -17,6 +18,8 @@ interface Curso {
 export default function CadastroDisciplina() {
 	const [nomeDisciplina, setNomeDisciplina] = useState("");
 	const [idCurso, setIdCurso] = useState("");
+	const [codigoDisciplina, setCodigoDisciplina] = useState("");
+	const [semestreDisciplina, setSemestreDisciplina] = useState("");
 	const [modalidade, setModalidade] = useState("");
 	const [tipoSala, setTipoSala] = useState("");
 	const [cargaHoraria, setCargaHoraria] = useState("");
@@ -46,7 +49,6 @@ export default function CadastroDisciplina() {
 			const response = await api.get<Curso[]>("/curso");
 			setCursos(response.data);
 		} catch (error) {
-			console.error("Erro ao carregar cursos:", error);
 			toast.error("Erro ao carregar lista de cursos");
 		} finally {
 			setLoadingCursos(false);
@@ -63,6 +65,11 @@ export default function CadastroDisciplina() {
 
 		if (!idCurso) {
 			toast.error("Selecione um curso");
+			return;
+		}
+
+		if (!semestreDisciplina || parseInt(semestreDisciplina) <= 0) {
+			toast.error("Semestre da disciplina é obrigatório");
 			return;
 		}
 
@@ -85,59 +92,46 @@ export default function CadastroDisciplina() {
 			setLoading(true);
 
 			const payloadDisciplina = {
+				codigoDisciplina: codigoDisciplina.trim() || null,
 				nomeDisciplina: nomeDisciplina.trim(),
+				cargaHoraria: parseInt(cargaHoraria),
 				modalidade: modalidade,
-				tipo_sala: tipoSala,
-				carga_horaria: parseInt(cargaHoraria),
-			};
-
-			// 1. Cadastrar a disciplina
-			await api.post("/disciplina", payloadDisciplina);
-
-			// 2. Buscar todas as disciplinas para pegar o ID da recém-criada
-			const responseDisciplinas = await api.get("/disciplina");
-
-			// 3. Encontrar a disciplina pelo nome (a última criada com esse nome)
-			const disciplinaCriada = responseDisciplinas.data.find(
-				(disc: any) => disc.nomeDisciplina === nomeDisciplina.trim(),
-			);
-
-			if (!disciplinaCriada || !disciplinaCriada.idDisciplina) {
-				throw new Error(
-					"Não foi possível encontrar o ID da disciplina cadastrada",
-				);
-			}
-
-			// 4. Associar disciplina ao curso
-			const payloadDisciplinaCurso = {
-				idDisciplina: disciplinaCriada.idDisciplina,
+				tipoSala: tipoSala,
+				semestreDisciplina: parseInt(semestreDisciplina),
 				idCurso: parseInt(idCurso),
 			};
 
-			await api.post("/disciplina/curso", payloadDisciplinaCurso);
+			// Cadastrar a disciplina com todos os dados
+			const response = await api.post("/disciplina", payloadDisciplina);
 
-			toast.success("Disciplina cadastrada e associada ao curso com sucesso!");
+			toast.success("Disciplina cadastrada com sucesso!");
 
 			// Limpar os campos
 			setNomeDisciplina("");
+			setCodigoDisciplina("");
+			setSemestreDisciplina("");
 			setIdCurso("");
 			setModalidade("");
 			setTipoSala("");
 			setCargaHoraria("");
 		} catch (error: any) {
-			console.error("❌ ERRO:", error);
-
 			let mensagemErro = "Erro ao cadastrar disciplina";
 
-			if (error.response?.data?.message) {
-				mensagemErro = error.response.data.message;
-			} else if (error.response?.data?.error) {
-				mensagemErro = error.response.data.error;
+			if (error.response?.data) {
+				const errorData = error.response.data;
+				mensagemErro =
+					errorData.error ||
+					errorData.message ||
+					errorData.msg ||
+					errorData.mensagem ||
+					(typeof errorData === "string" ? errorData : mensagemErro);
 			} else if (error.message) {
 				mensagemErro = error.message;
 			}
 
-			toast.error(mensagemErro);
+			toast.error(mensagemErro, {
+				duration: 5000,
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -149,16 +143,24 @@ export default function CadastroDisciplina() {
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
 				<InputCadastro
-					label='Nome da Disciplina'
+					label='Nome da Disciplina *'
 					placeHolder='Ex: Práticas Orientadas'
 					type='text'
 					value={nomeDisciplina}
 					onChange={(e) => setNomeDisciplina(e.target.value)}
 					disabled={loading}
 				/>
+				<InputCadastro
+					label='Código da Disciplina'
+					placeHolder='Ex: PO001'
+					type='text'
+					value={codigoDisciplina}
+					onChange={(e) => setCodigoDisciplina(e.target.value)}
+					disabled={loading}
+				/>
 
 				<SelectCadastro
-					label='Curso da Disciplina'
+					label='Curso da Disciplina *'
 					value={idCurso}
 					onChange={(e) => setIdCurso(e.target.value)}
 					disabled={loading || loadingCursos}
@@ -171,8 +173,17 @@ export default function CadastroDisciplina() {
 					}))}
 				/>
 
+				<InputCadastro
+					label='Semestre da Disciplina *'
+					placeHolder='Ex: 1'
+					type='number'
+					value={semestreDisciplina}
+					onChange={(e) => setSemestreDisciplina(e.target.value)}
+					disabled={loading}
+				/>
+
 				<SelectCadastro
-					label='Modalidade da Disciplina'
+					label='Modalidade da Disciplina *'
 					value={modalidade}
 					onChange={(e) => setModalidade(e.target.value)}
 					disabled={loading}
@@ -181,7 +192,7 @@ export default function CadastroDisciplina() {
 				/>
 
 				<SelectCadastro
-					label='Tipo de Sala'
+					label='Tipo de Sala *'
 					value={tipoSala}
 					onChange={(e) => setTipoSala(e.target.value)}
 					disabled={loading}
@@ -190,7 +201,7 @@ export default function CadastroDisciplina() {
 				/>
 
 				<InputCadastro
-					label='Carga Horária'
+					label='Carga Horária *'
 					placeHolder='Ex: 120'
 					type='number'
 					value={cargaHoraria}

@@ -62,28 +62,8 @@ export default function Tabela() {
 		try {
 			setLoading(true);
 
-			// Buscar dados de células, professores e disciplinas em paralelo
-			const [celulasResponse, professoresResponse, disciplinasResponse] =
-				await Promise.all([
-					api.get<CelulaViewInterface[]>("/celula"),
-					api.get("/professor"),
-					api.get("/disciplina"),
-				]);
-
-			// Criar mapas para acesso rápido por NOME
-			const professoresMap = new Map();
-			professoresResponse.data.forEach((prof: any) => {
-				professoresMap.set(prof.nomeProfessor, {
-					titulacao: prof.titulacao,
-				});
-			});
-
-			const disciplinasMap = new Map();
-			disciplinasResponse.data.forEach((disc: any) => {
-				disciplinasMap.set(disc.nomeDisciplina, {
-					tipoSala: disc.tipo_sala,
-				});
-			});
+			// Buscar dados de células
+			const celulasResponse = await api.get<CelulaViewInterface[]>("/celula");
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
@@ -98,19 +78,13 @@ export default function Tabela() {
 					diaSemana = celula.dia_semana;
 				}
 
-				// Tratar semestre - extrair apenas o número
-				let semestreNumero: number;
-				if (typeof celula.semestre === "number") {
-					semestreNumero = celula.semestre;
-				} else if (typeof celula.semestre === "string") {
-					const match = celula.semestre.match(/\d+/);
-					semestreNumero = match ? parseInt(match[0]) : 0;
-				} else {
-					semestreNumero = 0;
-				}
+				// Extrair número do semestre do campo semestre (ex: "2025.1" -> 1)
+				// Assumindo que semestreDisciplina existe no backend
+				const semestreNumero = celula.semestreDisciplina || 1;
 
 				// Verificar se o dia é válido
 				if (!dias.includes(diaSemana)) {
+					console.warn(`⚠️ Dia inválido ignorado: ${diaSemana}`);
 					return;
 				}
 
@@ -122,34 +96,35 @@ export default function Tabela() {
 					celulasIdMap[chave] = celula.idCelula;
 				}
 
-				// Buscar informações adicionais do professor e disciplina usando NOMES
-				const professorInfo = professoresMap.get(celula.nomeProfessor);
-				const disciplinaInfo = disciplinasMap.get(celula.nomeDisciplina);
+				// Construir o conteúdo formatado
+				const linhas: string[] = [];
 
-				// Criar o conteúdo da célula
-				let conteudo = celula.nomeDisciplina;
-
-				// Adicionar professor com titulação
-				if (celula.nomeProfessor) {
-					if (professorInfo?.titulacao) {
-						conteudo += `\n${celula.nomeProfessor} (${professorInfo.titulacao})`;
-					} else {
-						conteudo += `\n${celula.nomeProfessor}`;
-					}
+				// Linha 1: Código + Nome da Disciplina
+				if (celula.codigoDisciplina && celula.disciplina) {
+					linhas.push(`${celula.codigoDisciplina} - ${celula.disciplina}`);
+				} else if (celula.disciplina) {
+					linhas.push(celula.disciplina);
 				}
 
-				// Adicionar tipo de sala
-				if (disciplinaInfo?.tipoSala) {
-					conteudo += `\n${disciplinaInfo.tipoSala}`;
+				// Linha 2: Tipo de Sala
+				if (celula.tipo_sala) {
+					linhas.push(`${celula.tipo_sala}`);
 				}
 
+				// Linha 3: Professor + Titulação
+				if (celula.professor && celula.titulacao) {
+					linhas.push(`${celula.professor} (${celula.titulacao})`);
+				} else if (celula.professor) {
+					linhas.push(celula.professor);
+				}
+
+				const conteudo = linhas.join("\n");
 				dadosMapeados[chave] = conteudo;
 			});
 
 			setDados(dadosMapeados);
 			setCelulasMap(celulasIdMap);
 		} catch (error) {
-			console.error("Erro ao carregar dados:", error);
 			toast.error("Erro ao carregar dados da tabela");
 		} finally {
 			setLoading(false);
@@ -187,8 +162,6 @@ export default function Tabela() {
 			setCelulaParaDeletar(null);
 			await carregarDados();
 		} catch (error: any) {
-			console.error("Erro ao deletar:", error);
-
 			let mensagemErro = "Erro ao excluir a aula";
 
 			if (error.response?.data?.error) {

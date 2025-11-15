@@ -1,14 +1,24 @@
 export interface CelulaViewInterface {
 	idCelula: number;
-	nomeCurso: string;
-	nomeDisciplina: string;
+	idCurso: number;
+	curso: string;
+	idDisciplina: number;
+	codigoDisciplina: string;
+	disciplina: string;
 	modalidade: string;
 	tipo_sala: string;
-	nomeProfessor: string;
+	idProfessor: number;
+	professor: string;
 	titulacao: string;
+	idDiaSemana: number;
 	dia_semana: string;
+	idGrade: number;
 	semestre: string;
-	data_criacao: Date;
+	idSala: number;
+	codigoSala: string;
+	nomeSala: string;
+	criadoEm: string | null;
+	semestreDisciplina?: number; // Opcional caso o backend não retorne
 }
 
 export interface CelulaCursoViewInterface {
@@ -50,8 +60,12 @@ export interface DisponibilidadeDiasProps {
 
 export interface Disciplina {
 	idDisciplina: number;
+	codigoDisciplina: string;
 	nomeDisciplina: string;
-	[key: string]: string | number; // Fixed: was [t: string]
+	cargaHoraria: number;
+	modalidade: "Presencial" | "Online" | "Hibrido";
+	tipoSala: "Laboratório" | "Sala" | "Sincrona";
+	semestreDisciplina: number;
 }
 
 export interface DisciplinaSelectorProps {
@@ -68,8 +82,9 @@ export interface ModalDeleteProps {
 }
 
 export interface FormCadastroProps {
-	children: React.ReactNode;
-	onSubmit?: (e: React.FormEvent) => void;
+	children?: React.ReactNode;
+	onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
+	className?: string;
 }
 
 // Renamed to avoid conflict with InputCadastroPropsAlt below
@@ -92,6 +107,7 @@ export interface ButtonCadastroProps {
 
 export interface FormProps {
 	children: React.ReactNode;
+	className?: string;
 }
 
 export interface SelectCadastroProps {
