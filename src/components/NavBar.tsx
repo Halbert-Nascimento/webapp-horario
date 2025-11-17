@@ -2,9 +2,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function NavBar() {
 	const [isOpen, setIsOpen] = useState(false);
+	const { user, logout } = useAuth();
+	const router = useRouter();
+
+	const handleLogout = () => {
+		logout();
+		router.push("/login");
+	};
 
 	return (
 		<>
@@ -81,6 +90,18 @@ export default function NavBar() {
 						</h2>
 					</div>
 
+					{/* User info */}
+					{user && (
+						<div className='px-4 pb-4'>
+							<div className='bg-blue-800 rounded-lg p-3'>
+								<p className='text-white text-sm font-medium truncate'>
+									{user.nome}
+								</p>
+								<p className='text-blue-300 text-xs'>{user.perfil}</p>
+							</div>
+						</div>
+					)}
+
 					{/* Links de navegação */}
 					<nav className='flex-1 px-4 py-4'>
 						<ul className='space-y-2'>
@@ -142,6 +163,29 @@ export default function NavBar() {
 							</li>
 						</ul>
 					</nav>
+
+					{/* Logout button */}
+					<div className='px-4 pb-6'>
+						<button
+							onClick={handleLogout}
+							className='w-full flex items-center justify-center text-white bg-red-600 hover:bg-red-700 rounded-lg px-4 py-3 transition-colors'
+						>
+							<svg
+								className='w-5 h-5 mr-2'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+							>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
+								/>
+							</svg>
+							<span className='text-lg'>Sair</span>
+						</button>
+					</div>
 				</div>
 			</div>
 		</>

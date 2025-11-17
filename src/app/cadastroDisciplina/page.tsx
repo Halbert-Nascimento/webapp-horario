@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import InputCadastro from "@/components/InputCadastro";
 import SelectCadastro from "@/components/SelectCadastro";
 import FormCadastro from "@/components/FormCadastro";
+import PrivateRoute from "@/components/PrivateRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -138,7 +139,7 @@ export default function CadastroDisciplina() {
 	};
 
 	return (
-		<>
+		<PrivateRoute>
 			<Header title='Cadastro de Disciplina' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
@@ -209,6 +210,6 @@ export default function CadastroDisciplina() {
 					disabled={loading}
 				/>
 			</FormCadastro>
-		</>
+				</PrivateRoute>
 	);
 }

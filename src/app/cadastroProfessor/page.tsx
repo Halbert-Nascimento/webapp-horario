@@ -6,6 +6,7 @@ import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
 import DisponibilidadeDias from "@/components/DisponibilidadeDias";
 import SelectCadastro from "@/components/SelectCadastro";
+import PrivateRoute from "@/components/PrivateRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -158,7 +159,7 @@ export default function CadastroProfessor() {
 	};
 
 	return (
-		<>
+		<PrivateRoute>
 			<Header title='Cadastro de professor' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
@@ -196,6 +197,6 @@ export default function CadastroProfessor() {
 				/>
 				<DisponibilidadeDias onChange={handleDisponibilidadeChange} />
 			</FormCadastro>
-		</>
+		</PrivateRoute>
 	);
 }
