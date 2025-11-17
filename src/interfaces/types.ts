@@ -118,3 +118,31 @@ export interface SelectCadastroProps {
 	options: { value: string | number; label: string }[];
 	placeholder?: string;
 }
+
+// Authentication interfaces
+export interface User {
+	id: number;
+	email: string;
+	nome: string;
+	perfil: string;
+	perfil_id: number;
+}
+
+export interface LoginResponse {
+	token: string;
+	user: User;
+}
+
+export interface LoginCredentials {
+	email: string;
+	senha: string;
+}
+
+export interface AuthContextType {
+	user: User | null;
+	loading: boolean;
+	login: (email: string, senha: string) => Promise<User>;
+	logout: () => void;
+	isAuthenticated: () => boolean;
+	hasRole: (roles: string[] | number[] | string | number) => boolean;
+}

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import NavBar from "@/components/NavBar";
 import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
+import PrivateRoute from "@/components/PrivateRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -60,7 +61,7 @@ export default function CadastroCurso() {
 	};
 
 	return (
-		<>
+		<PrivateRoute>
 			<Header title='Cadastro de Curso' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
@@ -89,6 +90,6 @@ export default function CadastroCurso() {
 					disabled={loading}
 				/>
 			</FormCadastro>
-		</>
+		</PrivateRoute>
 	);
 }
