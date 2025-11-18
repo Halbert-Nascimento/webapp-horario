@@ -60,12 +60,34 @@ export default function Modal({
 	const carregarProfessoresPorDisciplina = async (idDisciplina: number) => {
 		try {
 			setLoadingProfessores(true);
-			const professoresResponse = await api.get<Professor[]>(
-				`/professorDisciplina/${idDisciplina}`,
+
+			// Buscar vinculações professor-disciplina
+			const vinculacoesResponse = await api.get<
+				{ idDisciplina: number; idProfessor: number }[]
+			>(`/professorDisciplina/${idDisciplina}`);
+
+			if (
+				!Array.isArray(vinculacoesResponse.data) ||
+				vinculacoesResponse.data.length === 0
+			) {
+				setProfessores([]);
+				return;
+			}
+
+			// Buscar dados completos de todos os professores
+			const professoresResponse = await api.get<Professor[]>("/professor");
+
+			// Filtrar apenas os professores vinculados a esta disciplina
+			const idsProfessoresVinculados = vinculacoesResponse.data.map(
+				(v) => v.idProfessor,
 			);
-			setProfessores(professoresResponse.data);
+			const professoresFiltrados = professoresResponse.data.filter((prof) =>
+				idsProfessoresVinculados.includes(prof.idProfessor),
+			);
+
+			setProfessores(professoresFiltrados);
 		} catch (error) {
-			console.error("Erro ao carregar professores:", error);
+			console.error("❌ Erro ao carregar professores:", error);
 			setProfessores([]);
 			toast.error("Erro ao carregar professores");
 		} finally {
@@ -104,8 +126,9 @@ export default function Modal({
 			return;
 		}
 
-		// Extrair o número do semestre (ex: "1º Semestre" -> 1)
-		const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
+		// Extrair o número do semestre da célula (ex: "1º Semestre" -> 1, "3º Semestre" -> 3)
+		// Este é o semestre onde a aula será exibida na tabela
+		const semestreCelulaNumero = parseInt(semestre.replace("º Semestre", ""));
 
 		// Obter o número do dia da semana
 		const idDiaSemana = getDiaSemanaNumero(dia);
@@ -115,14 +138,12 @@ export default function Modal({
 
 		try {
 			const payload = {
-				idGrade: idGrade, // ID do semestre letivo
+				idGrade: idGrade, // ID do semestre letivo (grade) - ex: referência a 2025.1 ou 2025.2
 				idDisciplina: parseInt(formData.disciplinaId),
 				idProfessor: parseInt(formData.professorId),
 				idDiaSemana: idDiaSemana, // 1=Segunda, 2=Terça, etc
-				semestre: semestreNumero, // 1, 2, 3, 4, etc (semestre do curso)
+				semestre: semestreCelulaNumero, // Semestre onde a célula será exibida na tabela (1, 2, 3, 4, etc)
 			};
-
-			console.log("📤 Enviando payload:", payload);
 
 			await api.post("/celula", payload);
 			toast.success("Aula cadastrada com sucesso!");
@@ -224,6 +245,8 @@ export default function Modal({
 										? "Carregando..."
 										: !formData.disciplinaId
 										? "Selecione disciplina"
+										: professores.length === 0
+										? "Nenhum professor vinculado"
 										: "Selecione professor"}
 								</option>
 								{professores.map((professor) => (

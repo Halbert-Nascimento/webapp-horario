@@ -78,9 +78,8 @@ export default function Tabela() {
 					diaSemana = celula.dia_semana;
 				}
 
-				// Extrair número do semestre do campo semestre (ex: "2025.1" -> 1)
-				// Assumindo que semestreDisciplina existe no backend
-				const semestreNumero = celula.semestreDisciplina || 1;
+				// semestreCelula é o semestre onde a célula será exibida na tabela (1, 2, 3, etc.)
+				const semestreCelula = celula.semestreCelula || 1;
 
 				// Verificar se o dia é válido
 				if (!dias.includes(diaSemana)) {
@@ -88,10 +87,8 @@ export default function Tabela() {
 					return;
 				}
 
-				// Criar a chave usando dia_semana e semestre
-				const chave = `${diaSemana}-${semestreNumero}º Semestre`;
-
-				// Armazenar o ID da célula
+				// Criar a chave usando dia_semana e semestreCelula
+				const chave = `${diaSemana}-${semestreCelula}º Semestre`; // Armazenar o ID da célula
 				if (celula.idCelula !== undefined && celula.idCelula !== null) {
 					celulasIdMap[chave] = celula.idCelula;
 				}

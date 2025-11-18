@@ -18,7 +18,8 @@ export interface CelulaViewInterface {
 	codigoSala: string;
 	nomeSala: string;
 	criadoEm: string | null;
-	semestreDisciplina?: number; // Opcional caso o backend não retorne
+	semestreDisciplina?: number; // Semestre da disciplina no curso
+	semestreCelula?: number; // Semestre onde a célula será exibida na tabela (1, 2, 3, etc)
 }
 
 export interface CelulaCursoViewInterface {
