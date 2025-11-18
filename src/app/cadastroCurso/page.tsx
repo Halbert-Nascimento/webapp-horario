@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
 import PrivateRoute from "@/components/PrivateRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -62,34 +63,36 @@ export default function CadastroCurso() {
 
 	return (
 		<PrivateRoute>
-			<Header title='Cadastro de Curso' />
-			<NavBar />
-			<FormCadastro onSubmit={handleSubmit}>
-				<InputCadastro
-					label='Nome do Curso'
-					placeHolder='Ex: Sistema de Informação'
-					type='text'
-					value={nomeCurso}
-					onChange={(e) => setNomeCurso(e.target.value)}
-					disabled={loading}
-				/>
-				<InputCadastro
-					label='Descriçao Curso'
-					placeHolder='Ex: Curso voltado para...'
-					type='text'
-					value={descricaoCurso}
-					onChange={(e) => setDescricaoCurso(e.target.value)}
-					disabled={loading}
-				/>
-				<InputCadastro
-					label='Quantidade de Semestres'
-					placeHolder='Ex: 8'
-					type='number'
-					value={quantidadeSemestres}
-					onChange={(e) => setQuantidadeSemestres(e.target.value)}
-					disabled={loading}
-				/>
-			</FormCadastro>
+			<RoleProtectedRoute allowedProfiles={[1]} pageName='Cadastro de Curso'>
+				<Header title='Cadastrar Curso' />
+				<NavBar />
+				<FormCadastro onSubmit={handleSubmit}>
+					<InputCadastro
+						label='Nome do Curso'
+						placeHolder='Ex: Sistema de Informação'
+						type='text'
+						value={nomeCurso}
+						onChange={(e) => setNomeCurso(e.target.value)}
+						disabled={loading}
+					/>
+					<InputCadastro
+						label='Descriçao Curso'
+						placeHolder='Ex: Curso voltado para...'
+						type='text'
+						value={descricaoCurso}
+						onChange={(e) => setDescricaoCurso(e.target.value)}
+						disabled={loading}
+					/>
+					<InputCadastro
+						label='Quantidade de Semestres'
+						placeHolder='Ex: 8'
+						type='number'
+						value={quantidadeSemestres}
+						onChange={(e) => setQuantidadeSemestres(e.target.value)}
+						disabled={loading}
+					/>
+				</FormCadastro>
+			</RoleProtectedRoute>
 		</PrivateRoute>
 	);
 }

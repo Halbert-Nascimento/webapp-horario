@@ -78,7 +78,7 @@ export default function NavBar() {
 					{/* Logo e título no topo */}
 					<div className='flex flex-col items-center py-8'>
 						<Image
-							src='/logo-iesgo.png'
+							src='/logo-iesgo-branca.png'
 							width={120}
 							height={45}
 							alt='Logo IESGO'
@@ -114,53 +114,63 @@ export default function NavBar() {
 									<span className='text-lg'>Home</span>
 								</Link>
 							</li>
-							<li>
-								<Link
-									href='/cadastroCurso'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastro Curso</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/cadastroDisciplina'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastro Disciplina</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/cadastroProfessor'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastro Professor</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/vincularDisciplinaProfessor'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>
-										Vincular Professor a Disciplina
-									</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/cadastroSala'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastrar Sala</span>
-								</Link>
-							</li>
+							{user?.perfil_id !== 2 && user?.perfil_id !== 3 && (
+								<li>
+									<Link
+										href='/cadastroCurso'
+										onClick={() => setIsOpen(false)}
+										className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+									>
+										<span className='text-lg'>Cadastro Curso</span>
+									</Link>
+								</li>
+							)}
+							{user?.perfil_id !== 3 && (
+								<li>
+									<Link
+										href='/cadastroDisciplina'
+										onClick={() => setIsOpen(false)}
+										className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+									>
+										<span className='text-lg'>Cadastro Disciplina</span>
+									</Link>
+								</li>
+							)}
+							{user?.perfil_id !== 3 && (
+								<li>
+									<Link
+										href='/cadastroProfessor'
+										onClick={() => setIsOpen(false)}
+										className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+									>
+										<span className='text-lg'>Cadastro Professor</span>
+									</Link>
+								</li>
+							)}
+							{user?.perfil_id !== 3 && (
+								<li>
+									<Link
+										href='/vincularDisciplinaProfessor'
+										onClick={() => setIsOpen(false)}
+										className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+									>
+										<span className='text-lg'>
+											Vincular Professor a Disciplina
+										</span>
+									</Link>
+								</li>
+							)}
+							{user?.perfil_id !== 2 && user?.perfil_id !== 3 && (
+								<li>
+									<Link
+										href='/cadastroSala'
+										onClick={() => setIsOpen(false)}
+										className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+									>
+										<span className='text-lg'>Cadastrar Sala</span>
+									</Link>
+								</li>
+							)}
 						</ul>
 					</nav>
 

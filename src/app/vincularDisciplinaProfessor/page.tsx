@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import DisciplinaSelector from "@/components/DisciplinaSelector";
 import FormCadastro from "@/components/FormCadastro";
 import PrivateRoute from "@/components/PrivateRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -106,17 +107,22 @@ export default function VincularDisciplinaProfessor() {
 
 	return (
 		<PrivateRoute>
-			<Header title='Vincular Professor a Disciplina' />
-			<NavBar />
-			<div className='[&>div>div]:lg:max-w-3xl'>
-				<FormCadastro onSubmit={handleSubmit}>
-					<DisciplinaSelector
-						key={resetKey} // Força remontagem quando resetKey muda
-						courseId={3}
-						onChange={handleDisciplinasChange}
-					/>
-				</FormCadastro>
-			</div>
+			<RoleProtectedRoute
+				allowedProfiles={[1, 2]}
+				pageName='Vincular Professor a Disciplina'
+			>
+				<Header title='Vincular Professor a Disciplina' />
+				<NavBar />
+				<div className='[&>div>div]:lg:max-w-3xl'>
+					<FormCadastro onSubmit={handleSubmit}>
+						<DisciplinaSelector
+							key={resetKey} // Força remontagem quando resetKey muda
+							courseId={3}
+							onChange={handleDisciplinasChange}
+						/>
+					</FormCadastro>
+				</div>
+			</RoleProtectedRoute>
 		</PrivateRoute>
 	);
 }

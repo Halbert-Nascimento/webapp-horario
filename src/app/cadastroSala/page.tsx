@@ -6,6 +6,7 @@ import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
 import SelectCadastro from "@/components/SelectCadastro";
 import PrivateRoute from "@/components/PrivateRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -108,64 +109,66 @@ export default function CadastroSala() {
 
 	return (
 		<PrivateRoute>
-			<Header title='Cadastro de Sala' />
-			<NavBar />
-			<FormCadastro onSubmit={handleSubmit}>
-				<InputCadastro
-					label='Código da Sala *'
-					placeHolder='Ex: LAB6'
-					type='text'
-					value={formData.codigoSala}
-					onChange={(e) =>
-						setFormData({ ...formData, codigoSala: e.target.value })
-					}
-				/>
-				<InputCadastro
-					label='Nome da Sala'
-					placeHolder='Ex: Laboratório 6'
-					type='text'
-					value={formData.nomeSala}
-					onChange={(e) =>
-						setFormData({ ...formData, nomeSala: e.target.value })
-					}
-				/>
-				<InputCadastro
-					label='Capacidade *'
-					placeHolder='Ex: 60'
-					type='number'
-					value={formData.capacidadeSala}
-					onChange={(e) =>
-						setFormData({ ...formData, capacidadeSala: e.target.value })
-					}
-				/>
-				<SelectCadastro
-					label='Tipo de Sala *'
-					placeholder='Escolha o tipo de sala'
-					options={opcoesSala}
-					value={formData.tipoSala}
-					onChange={(e) =>
-						setFormData({ ...formData, tipoSala: e.target.value })
-					}
-				/>
-				<InputCadastro
-					label='Recursos'
-					placeHolder='Ex: Microfone, Projetor'
-					type='text'
-					value={formData.recursos}
-					onChange={(e) =>
-						setFormData({ ...formData, recursos: e.target.value })
-					}
-				/>
-				<InputCadastro
-					label='Localização'
-					placeHolder='Ex: Bloco Alpha'
-					type='text'
-					value={formData.localizacao}
-					onChange={(e) =>
-						setFormData({ ...formData, localizacao: e.target.value })
-					}
-				/>
-			</FormCadastro>
+			<RoleProtectedRoute allowedProfiles={[1]} pageName='Cadastro de Sala'>
+				<Header title='Cadastro de Sala' />
+				<NavBar />
+				<FormCadastro onSubmit={handleSubmit}>
+					<InputCadastro
+						label='Código da Sala *'
+						placeHolder='Ex: LAB6'
+						type='text'
+						value={formData.codigoSala}
+						onChange={(e) =>
+							setFormData({ ...formData, codigoSala: e.target.value })
+						}
+					/>
+					<InputCadastro
+						label='Nome da Sala'
+						placeHolder='Ex: Laboratório 6'
+						type='text'
+						value={formData.nomeSala}
+						onChange={(e) =>
+							setFormData({ ...formData, nomeSala: e.target.value })
+						}
+					/>
+					<InputCadastro
+						label='Capacidade *'
+						placeHolder='Ex: 60'
+						type='number'
+						value={formData.capacidadeSala}
+						onChange={(e) =>
+							setFormData({ ...formData, capacidadeSala: e.target.value })
+						}
+					/>
+					<SelectCadastro
+						label='Tipo de Sala *'
+						placeholder='Escolha o tipo de sala'
+						options={opcoesSala}
+						value={formData.tipoSala}
+						onChange={(e) =>
+							setFormData({ ...formData, tipoSala: e.target.value })
+						}
+					/>
+					<InputCadastro
+						label='Recursos'
+						placeHolder='Ex: Microfone, Projetor'
+						type='text'
+						value={formData.recursos}
+						onChange={(e) =>
+							setFormData({ ...formData, recursos: e.target.value })
+						}
+					/>
+					<InputCadastro
+						label='Localização'
+						placeHolder='Ex: Bloco Alpha'
+						type='text'
+						value={formData.localizacao}
+						onChange={(e) =>
+							setFormData({ ...formData, localizacao: e.target.value })
+						}
+					/>
+				</FormCadastro>
+			</RoleProtectedRoute>
 		</PrivateRoute>
 	);
 }

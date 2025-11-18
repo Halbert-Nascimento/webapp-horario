@@ -6,6 +6,7 @@ import InputCadastro from "@/components/InputCadastro";
 import SelectCadastro from "@/components/SelectCadastro";
 import FormCadastro from "@/components/FormCadastro";
 import PrivateRoute from "@/components/PrivateRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -140,76 +141,81 @@ export default function CadastroDisciplina() {
 
 	return (
 		<PrivateRoute>
-			<Header title='Cadastro de Disciplina' />
-			<NavBar />
-			<FormCadastro onSubmit={handleSubmit}>
-				<InputCadastro
-					label='Nome da Disciplina *'
-					placeHolder='Ex: Práticas Orientadas'
-					type='text'
-					value={nomeDisciplina}
-					onChange={(e) => setNomeDisciplina(e.target.value)}
-					disabled={loading}
-				/>
-				<InputCadastro
-					label='Código da Disciplina'
-					placeHolder='Ex: PO001'
-					type='text'
-					value={codigoDisciplina}
-					onChange={(e) => setCodigoDisciplina(e.target.value)}
-					disabled={loading}
-				/>
+			<RoleProtectedRoute
+				allowedProfiles={[1, 2]}
+				pageName='Cadastro de Disciplina'
+			>
+				<Header title='Cadastro de Disciplina' />
+				<NavBar />
+				<FormCadastro onSubmit={handleSubmit}>
+					<InputCadastro
+						label='Nome da Disciplina *'
+						placeHolder='Ex: Práticas Orientadas'
+						type='text'
+						value={nomeDisciplina}
+						onChange={(e) => setNomeDisciplina(e.target.value)}
+						disabled={loading}
+					/>
+					<InputCadastro
+						label='Código da Disciplina'
+						placeHolder='Ex: PO001'
+						type='text'
+						value={codigoDisciplina}
+						onChange={(e) => setCodigoDisciplina(e.target.value)}
+						disabled={loading}
+					/>
 
-				<SelectCadastro
-					label='Curso da Disciplina *'
-					value={idCurso}
-					onChange={(e) => setIdCurso(e.target.value)}
-					disabled={loading || loadingCursos}
-					placeholder={
-						loadingCursos ? "Carregando cursos..." : "Selecione um curso"
-					}
-					options={cursos.map((curso) => ({
-						value: curso.idCurso,
-						label: curso.nomeCurso,
-					}))}
-				/>
+					<SelectCadastro
+						label='Curso da Disciplina *'
+						value={idCurso}
+						onChange={(e) => setIdCurso(e.target.value)}
+						disabled={loading || loadingCursos}
+						placeholder={
+							loadingCursos ? "Carregando cursos..." : "Selecione um curso"
+						}
+						options={cursos.map((curso) => ({
+							value: curso.idCurso,
+							label: curso.nomeCurso,
+						}))}
+					/>
 
-				<InputCadastro
-					label='Semestre da Disciplina *'
-					placeHolder='Ex: 1'
-					type='number'
-					value={semestreDisciplina}
-					onChange={(e) => setSemestreDisciplina(e.target.value)}
-					disabled={loading}
-				/>
+					<InputCadastro
+						label='Semestre da Disciplina *'
+						placeHolder='Ex: 1'
+						type='number'
+						value={semestreDisciplina}
+						onChange={(e) => setSemestreDisciplina(e.target.value)}
+						disabled={loading}
+					/>
 
-				<SelectCadastro
-					label='Modalidade da Disciplina *'
-					value={modalidade}
-					onChange={(e) => setModalidade(e.target.value)}
-					disabled={loading}
-					placeholder='Selecione a modalidade'
-					options={modalidades}
-				/>
+					<SelectCadastro
+						label='Modalidade da Disciplina *'
+						value={modalidade}
+						onChange={(e) => setModalidade(e.target.value)}
+						disabled={loading}
+						placeholder='Selecione a modalidade'
+						options={modalidades}
+					/>
 
-				<SelectCadastro
-					label='Tipo de Sala *'
-					value={tipoSala}
-					onChange={(e) => setTipoSala(e.target.value)}
-					disabled={loading}
-					placeholder='Selecione o tipo de sala'
-					options={tiposSala}
-				/>
+					<SelectCadastro
+						label='Tipo de Sala *'
+						value={tipoSala}
+						onChange={(e) => setTipoSala(e.target.value)}
+						disabled={loading}
+						placeholder='Selecione o tipo de sala'
+						options={tiposSala}
+					/>
 
-				<InputCadastro
-					label='Carga Horária *'
-					placeHolder='Ex: 120'
-					type='number'
-					value={cargaHoraria}
-					onChange={(e) => setCargaHoraria(e.target.value)}
-					disabled={loading}
-				/>
-			</FormCadastro>
-				</PrivateRoute>
+					<InputCadastro
+						label='Carga Horária *'
+						placeHolder='Ex: 120'
+						type='number'
+						value={cargaHoraria}
+						onChange={(e) => setCargaHoraria(e.target.value)}
+						disabled={loading}
+					/>
+				</FormCadastro>
+			</RoleProtectedRoute>
+		</PrivateRoute>
 	);
 }

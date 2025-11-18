@@ -7,6 +7,7 @@ import InputCadastro from "@/components/InputCadastro";
 import DisponibilidadeDias from "@/components/DisponibilidadeDias";
 import SelectCadastro from "@/components/SelectCadastro";
 import PrivateRoute from "@/components/PrivateRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -160,43 +161,48 @@ export default function CadastroProfessor() {
 
 	return (
 		<PrivateRoute>
-			<Header title='Cadastro de professor' />
-			<NavBar />
-			<FormCadastro onSubmit={handleSubmit}>
-				<InputCadastro
-					label='Nome do Professor *'
-					placeHolder='Ex: Sandir'
-					type='text'
-					value={nomeProfessor}
-					onChange={(e) => setNomeProfessor(e.target.value)}
-					disabled={loading}
-				/>
-				<InputCadastro
-					label='Email do Professor *'
-					placeHolder='Ex: email@email.com'
-					type='email'
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					disabled={loading}
-				/>
-				<SelectCadastro
-					label='Titulação *'
-					placeholder='Escolha a titulação'
-					options={opcoesTitulacao}
-					value={titulacao}
-					onChange={(e) => setTitulacao(e.target.value)}
-					disabled={loading}
-				/>
-				<InputCadastro
-					label='Currículo Lattes do Professor'
-					placeHolder='Ex: http://lattes.cnpq.br/1234567890123456'
-					type='text'
-					value={curriculoLattes}
-					onChange={(e) => setCurriculoLattes(e.target.value)}
-					disabled={loading}
-				/>
-				<DisponibilidadeDias onChange={handleDisponibilidadeChange} />
-			</FormCadastro>
+			<RoleProtectedRoute
+				allowedProfiles={[1, 2]}
+				pageName='Cadastro de Professor'
+			>
+				<Header title='Cadastro de professor' />
+				<NavBar />
+				<FormCadastro onSubmit={handleSubmit}>
+					<InputCadastro
+						label='Nome do Professor *'
+						placeHolder='Ex: Sandir'
+						type='text'
+						value={nomeProfessor}
+						onChange={(e) => setNomeProfessor(e.target.value)}
+						disabled={loading}
+					/>
+					<InputCadastro
+						label='Email do Professor *'
+						placeHolder='Ex: email@email.com'
+						type='email'
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						disabled={loading}
+					/>
+					<SelectCadastro
+						label='Titulação *'
+						placeholder='Escolha a titulação'
+						options={opcoesTitulacao}
+						value={titulacao}
+						onChange={(e) => setTitulacao(e.target.value)}
+						disabled={loading}
+					/>
+					<InputCadastro
+						label='Currículo Lattes do Professor'
+						placeHolder='Ex: http://lattes.cnpq.br/1234567890123456'
+						type='text'
+						value={curriculoLattes}
+						onChange={(e) => setCurriculoLattes(e.target.value)}
+						disabled={loading}
+					/>
+					<DisponibilidadeDias onChange={handleDisponibilidadeChange} />
+				</FormCadastro>
+			</RoleProtectedRoute>
 		</PrivateRoute>
 	);
 }
