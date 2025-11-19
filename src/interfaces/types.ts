@@ -5,6 +5,7 @@ export interface CelulaViewInterface {
 	idDisciplina: number;
 	codigoDisciplina: string;
 	disciplina: string;
+	duracaoSemestres: number;
 	modalidade: string;
 	tipo_sala: string;
 	idProfessor: number;
@@ -127,6 +128,7 @@ export interface User {
 	nome: string;
 	perfil: string;
 	perfil_id: number;
+	idCurso?: number; // ID do curso associado ao usuário
 }
 
 export interface LoginResponse {

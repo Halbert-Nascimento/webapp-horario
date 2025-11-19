@@ -34,6 +34,7 @@ export default function Tabela() {
 	const [dados, setDados] = useState<{ [key: string]: string }>({});
 	const [celulasMap, setCelulasMap] = useState<{ [key: string]: number }>({});
 	const [apenasImpares, setApenasImpares] = useState(true);
+	const [duracaoSemestres, setDuracaoSemestres] = useState(8); // Valor padrão
 	const [loading, setLoading] = useState(true);
 	const [modalAberto, setModalAberto] = useState(false);
 	const [modalDeleteAberto, setModalDeleteAberto] = useState(false);
@@ -42,7 +43,7 @@ export default function Tabela() {
 		id: number;
 		conteudo: string;
 	} | null>(null);
-	const semestres = gerarSemestres(8, apenasImpares);
+	const semestres = gerarSemestres(duracaoSemestres, apenasImpares);
 
 	// Converter número do dia da semana para nome
 	const getDiaSemanaString = (diaNumero: number): string => {
@@ -64,6 +65,14 @@ export default function Tabela() {
 
 			// Buscar dados de células
 			const celulasResponse = await api.get<CelulaViewInterface[]>("/celula");
+
+			// Extrair duração de semestres da primeira célula (todas devem ter o mesmo valor)
+			if (
+				celulasResponse.data.length > 0 &&
+				celulasResponse.data[0].duracaoSemestres
+			) {
+				setDuracaoSemestres(celulasResponse.data[0].duracaoSemestres);
+			}
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};

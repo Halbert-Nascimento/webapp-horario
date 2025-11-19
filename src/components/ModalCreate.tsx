@@ -2,6 +2,7 @@
 import api from "@/services/api";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { Professor, Disciplina, ModalProps } from "../interfaces/types";
 
@@ -14,6 +15,7 @@ export default function Modal({
 	idGrade = 1,
 	idCelula,
 }: ModalProps) {
+	const { user } = useAuth();
 	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -47,11 +49,27 @@ export default function Modal({
 	const carregarDisciplinas = async () => {
 		try {
 			setLoading(true);
-			const disciplinasResponse = await api.get<Disciplina[]>("/disciplina");
+
+			// Verificar se o usuário tem um curso associado
+			if (!user) {
+				toast.error("Usuário não autenticado");
+				return;
+			}
+
+			// Extrair o período do semestre (ex: "1º Semestre" -> 1)
+			const periodo = parseInt(semestre.replace("º Semestre", ""));
+
+			// Usar o idCurso do usuário ou um valor padrão
+			const idCurso = user.idCurso || 1;
+
+			const disciplinasResponse = await api.get<Disciplina[]>(
+				`/disciplina/curso/${idCurso}/periodo/${periodo}`,
+			);
 			setDisciplinas(disciplinasResponse.data);
 		} catch (error) {
 			console.error("Erro ao carregar disciplinas:", error);
 			toast.error("Erro ao carregar disciplinas");
+			setDisciplinas([]);
 		} finally {
 			setLoading(false);
 		}
