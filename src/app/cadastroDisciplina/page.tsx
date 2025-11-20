@@ -19,7 +19,7 @@ export default function CadastroDisciplina() {
 	const [nomeDisciplina, setNomeDisciplina] = useState("");
 	const [idCurso, setIdCurso] = useState("");
 	const [codigoDisciplina, setCodigoDisciplina] = useState("");
-	const [semestreDisciplina, setSemestreDisciplina] = useState("");
+	const [periodo, setPeriodo] = useState("");
 	const [modalidade, setModalidade] = useState("");
 	const [tipoSala, setTipoSala] = useState("");
 	const [cargaHoraria, setCargaHoraria] = useState("");
@@ -28,15 +28,16 @@ export default function CadastroDisciplina() {
 	const [loadingCursos, setLoadingCursos] = useState(true);
 
 	const modalidades = [
-		{ value: "Presencial", label: "Presencial" },
-		{ value: "Online", label: "Online" },
-		{ value: "Hibrido", label: "Híbrido" },
+		{ value: "presencial", label: "Presencial" },
+		{ value: "sincrona", label: "Sincrona" },
+		{ value: "hibrido", label: "Híbrido" },
 	];
 
 	const tiposSala = [
-		{ value: "Laboratório", label: "Laboratório" },
-		{ value: "Sala", label: "Sala" },
-		{ value: "Sincrona", label: "Síncrona" },
+		{ value: "laboratório", label: "Laboratório" },
+		{ value: "sala de aula", label: "Sala de Aula" },
+		{ value: "virtual", label: "Virtual" },
+		{ value: "auditorio", label: "Auditório" },
 	];
 
 	useEffect(() => {
@@ -68,7 +69,7 @@ export default function CadastroDisciplina() {
 			return;
 		}
 
-		if (!semestreDisciplina || parseInt(semestreDisciplina) <= 0) {
+		if (!periodo || parseInt(periodo) <= 0) {
 			toast.error("Semestre da disciplina é obrigatório");
 			return;
 		}
@@ -92,12 +93,12 @@ export default function CadastroDisciplina() {
 			setLoading(true);
 
 			const payloadDisciplina = {
-				codigoDisciplina: codigoDisciplina.trim() || null,
+				codigoDisciplina: codigoDisciplina.trim(),
 				nomeDisciplina: nomeDisciplina.trim(),
 				cargaHoraria: parseInt(cargaHoraria),
 				modalidade: modalidade,
 				tipoSala: tipoSala,
-				semestreDisciplina: parseInt(semestreDisciplina),
+				periodo: parseInt(periodo),
 				idCurso: parseInt(idCurso),
 			};
 
@@ -109,7 +110,7 @@ export default function CadastroDisciplina() {
 			// Limpar os campos
 			setNomeDisciplina("");
 			setCodigoDisciplina("");
-			setSemestreDisciplina("");
+			setPeriodo("");
 			setIdCurso("");
 			setModalidade("");
 			setTipoSala("");
@@ -177,8 +178,8 @@ export default function CadastroDisciplina() {
 					label='Semestre da Disciplina *'
 					placeHolder='Ex: 1'
 					type='number'
-					value={semestreDisciplina}
-					onChange={(e) => setSemestreDisciplina(e.target.value)}
+					value={periodo}
+					onChange={(e) => setPeriodo(e.target.value)}
 					disabled={loading}
 				/>
 
