@@ -70,7 +70,7 @@ export default function CadastroProfessor() {
 				email: email.trim(),
 				titulacao: titulacao.trim(),
 				curriculo_lattes: curriculoLattes.trim() || null,
-				coordenador_idProfessor: null, // Definir como null ou um ID específico se necessário
+				idCoordenador: null, // Definir como null ou um ID específico se necessário
 			};
 
 			console.log("📤 Enviando payload professor:", payloadProfessor);
