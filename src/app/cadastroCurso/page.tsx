@@ -11,6 +11,7 @@ import { useState } from "react";
 
 export default function CadastroCurso() {
 	const [nomeCurso, setNomeCurso] = useState("");
+	const [codigoCurso, setCodigoCurso] = useState("");
 	const [descricaoCurso, setDescricaoCurso] = useState("");
 	const [quantidadeSemestres, setQuantidadeSemestres] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -34,6 +35,8 @@ export default function CadastroCurso() {
 			const payload = {
 				nomeCurso: nomeCurso.trim(),
 				duracaoSemestres: parseInt(quantidadeSemestres),
+				descricaoCurso: descricaoCurso.trim(),
+				codigoCurso: codigoCurso.trim(),
 			};
 
 			await api.post("/curso", payload);
@@ -42,6 +45,7 @@ export default function CadastroCurso() {
 
 			// Limpar os campos
 			setNomeCurso("");
+			setCodigoCurso("");
 			setDescricaoCurso("");
 			setQuantidadeSemestres("");
 		} catch (error: any) {
@@ -70,6 +74,14 @@ export default function CadastroCurso() {
 					type='text'
 					value={nomeCurso}
 					onChange={(e) => setNomeCurso(e.target.value)}
+					disabled={loading}
+				/>
+				<InputCadastro
+					label='Código do Curso'
+					placeHolder='Ex: SIN'
+					type='text'
+					value={codigoCurso}
+					onChange={(e) => setCodigoCurso(e.target.value)}
 					disabled={loading}
 				/>
 				<InputCadastro
