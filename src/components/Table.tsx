@@ -63,7 +63,11 @@ export default function Tabela() {
 			setLoading(true);
 
 			// Buscar dados de células
-			const celulasResponse = await api.get<CelulaViewInterface[]>("/celula");
+			const celulasResponse = await api.get<CelulaViewInterface[]>(
+				`/celula/${1}/semestre/${1}/ano/${2026}`,
+			);
+
+			console.log("Dados das células:", celulasResponse.data);
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
@@ -75,12 +79,33 @@ export default function Tabela() {
 				if (typeof celula.dia_semana === "number") {
 					diaSemana = getDiaSemanaString(celula.dia_semana);
 				} else {
-					diaSemana = celula.dia_semana;
+					// Converter de "segunda" para "Segunda-feira"
+					const diaMinusculo = celula.dia_semana.toLowerCase().trim();
+					const mapeamentoDias: { [key: string]: string } = {
+						segunda: "Segunda-feira",
+						terça: "Terça-feira",
+						terca: "Terça-feira", // fallback sem acento
+						quarta: "Quarta-feira",
+						quinta: "Quinta-feira",
+						sexta: "Sexta-feira",
+						sábado: "Sábado",
+						sabado: "Sábado", // fallback sem acento
+						domingo: "Domingo",
+					};
+
+					diaSemana = mapeamentoDias[diaMinusculo] || celula.dia_semana;
 				}
 
-				// Extrair número do semestre do campo semestre (ex: "2025.1" -> 1)
-				// Assumindo que semestreDisciplina existe no backend
-				const semestreNumero = celula.semestreDisciplina || 1;
+				// Extrair número do semestre
+				const semestreCelula = celula.semestreCelula;
+
+				// 🔍 LOG DE DEPURAÇÃO
+				console.log("📊 Processando célula:", {
+					diaSemana,
+					semestreCelula,
+					chaveGerada: `${diaSemana}-${semestreCelula}º Semestre`,
+					dadosCompletos: celula,
+				});
 
 				// Verificar se o dia é válido
 				if (!dias.includes(diaSemana)) {
@@ -89,7 +114,10 @@ export default function Tabela() {
 				}
 
 				// Criar a chave usando dia_semana e semestre
-				const chave = `${diaSemana}-${semestreNumero}º Semestre`;
+				const chave = `${diaSemana}-${semestreCelula}º Semestre`;
+
+				// 🔍 LOG ANTES DE ARMAZENAR
+				console.log("✅ Chave criada:", chave);
 
 				// Armazenar o ID da célula
 				if (celula.idCelula !== undefined && celula.idCelula !== null) {
@@ -121,6 +149,9 @@ export default function Tabela() {
 				const conteudo = linhas.join("\n");
 				dadosMapeados[chave] = conteudo;
 			});
+
+			console.log("📦 Dados finais mapeados:", dadosMapeados);
+			console.log("🔑 Chaves disponíveis:", Object.keys(dadosMapeados));
 
 			setDados(dadosMapeados);
 			setCelulasMap(celulasIdMap);

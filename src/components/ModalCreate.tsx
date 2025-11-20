@@ -23,6 +23,8 @@ export default function Modal({
 		disciplinaId: "",
 	});
 
+	const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
+
 	useEffect(() => {
 		if (isOpen) {
 			carregarDisciplinas();
@@ -32,7 +34,7 @@ export default function Modal({
 			});
 			setProfessores([]);
 		}
-	}, [isOpen]);
+	}, [isOpen, semestreNumero]);
 
 	// Carregar professores quando uma disciplina for selecionada
 	useEffect(() => {
@@ -47,7 +49,15 @@ export default function Modal({
 	const carregarDisciplinas = async () => {
 		try {
 			setLoading(true);
-			const disciplinasResponse = await api.get<Disciplina[]>("/disciplina");
+			const disciplinasResponse = await api.get<Disciplina[]>(
+				`/disciplina/curso/${1}/semestre/${semestreNumero}`,
+			);
+
+			console.log(
+				`📚 Disciplinas do ${semestreNumero}º semestre:`,
+				disciplinasResponse.data,
+			);
+
 			setDisciplinas(disciplinasResponse.data);
 		} catch (error) {
 			console.error("Erro ao carregar disciplinas:", error);
@@ -104,8 +114,8 @@ export default function Modal({
 			return;
 		}
 
-		// Extrair o número do semestre (ex: "1º Semestre" -> 1)
-		const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
+		// // Extrair o número do semestre (ex: "1º Semestre" -> 1)
+		// const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
 
 		// Obter o número do dia da semana
 		const idDiaSemana = getDiaSemanaNumero(dia);
@@ -223,7 +233,7 @@ export default function Modal({
 									{loadingProfessores
 										? "Carregando..."
 										: !formData.disciplinaId
-										? "Selecione disciplina"
+										? "Selecione professor(a)"
 										: "Selecione professor"}
 								</option>
 								{professores.map((professor) => (

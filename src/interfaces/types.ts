@@ -1,7 +1,9 @@
 export interface CelulaViewInterface {
 	idCelula: number;
+	semestreCelula: number;
 	idCurso: number;
 	curso: string;
+	duraçaoSemestres: number;
 	idDisciplina: number;
 	codigoDisciplina: string;
 	disciplina: string;
@@ -13,23 +15,11 @@ export interface CelulaViewInterface {
 	idDiaSemana: number;
 	dia_semana: string;
 	idGrade: number;
-	semestre: string;
+	semestreLetivo: number;
+	anoLetivo: number;
 	idSala: number;
 	codigoSala: string;
 	nomeSala: string;
-	criadoEm: string | null;
-	semestreDisciplina?: number; // Opcional caso o backend não retorne
-}
-
-export interface CelulaCursoViewInterface {
-	idCurso: number;
-	nomeCurso: string;
-	nomeDisciplina: string;
-	modadalidade: string;
-	nomeProfessor: string;
-	titulacao: string;
-	dia_semana: string;
-	semestre: string;
 }
 
 export interface ModalProps {
