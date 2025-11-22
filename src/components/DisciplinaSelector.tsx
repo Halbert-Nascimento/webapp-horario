@@ -76,14 +76,16 @@ export default function DisciplinaSelector({
 				// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
 				const [cursoRes, disciplinasRes]: [any, AxiosResponse<Disciplina[]>] =
 					await Promise.all([
-						api.get(`/curso/${courseId}`),
-						api.get<Disciplina[]>(`/disciplina/curso/${courseId}`),
+						api.get(`/curso/${1}`),
+						api.get<Disciplina[]>(`/disciplina/curso/${1}`),
 					]);
 
 				// A API retorna um array, pegar o primeiro elemento
 				const dadosCurso = Array.isArray(cursoRes.data)
 					? cursoRes.data[0]
 					: cursoRes.data;
+
+				console.log(cursoRes.data);
 
 				// Definir curso
 				setCurso(dadosCurso || null);
@@ -141,8 +143,8 @@ export default function DisciplinaSelector({
 
 	// Agrupar disciplinas por semestre
 	const disciplinasPorSemestre = disciplinas.reduce((acc, disc) => {
-		// Se semestreDisciplina não existe, atribuir ao semestre 1 como fallback
-		const semestre = disc.semestreDisciplina || 1;
+		const semestre = disc.periodo || 1;
+
 		if (!acc[semestre]) {
 			acc[semestre] = [];
 		}

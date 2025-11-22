@@ -50,12 +50,13 @@ export interface DisponibilidadeDiasProps {
 
 export interface Disciplina {
 	idDisciplina: number;
-	codigoDisciplina: string;
 	nomeDisciplina: string;
+	codigoDisciplina: string;
 	cargaHoraria: number;
-	modalidade: "Presencial" | "Online" | "Hibrido";
-	tipoSala: "Laboratório" | "Sala" | "Sincrona";
-	semestreDisciplina: number;
+	semestreDisciplina?: number; // Campo antigo (pode manter para compatibilidade)
+	periodo: number; // ✅ NOVO: Campo que vem da API
+	tipoSala?: string;
+	idCurso?: number;
 }
 
 export interface DisciplinaSelectorProps {
