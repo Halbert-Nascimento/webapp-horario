@@ -23,10 +23,10 @@ export default function CadastroSala() {
 	const [loading, setLoading] = useState(false);
 
 	const opcoesSala = [
-		{ value: "Laboratório", label: "Laboratório" },
-		{ value: "Sala", label: "Sala de Aula" },
-		{ value: "Auditorio", label: "Auditório" },
-		{ value: "Sincrona", label: "Virtual" },
+		{ value: "aboratóri", label: "Laboratório" },
+		{ value: "sala de aul", label: "Sala de Aula" },
+		{ value: "auditorio", label: "Auditório" },
+		{ value: "virtual", label: "Virtual" },
 	];
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -60,8 +60,6 @@ export default function CadastroSala() {
 				localizacao: formData.localizacao.trim() || null,
 			};
 
-			console.log("📤 Enviando payload:", payload);
-
 			const response = await api.post("/sala", payload);
 
 			const mensagemSucesso =
@@ -81,9 +79,6 @@ export default function CadastroSala() {
 				localizacao: "",
 			});
 		} catch (error: any) {
-			console.error("❌ Erro ao cadastrar sala:", error);
-			console.error("❌ Resposta da API:", error.response?.data);
-
 			let mensagemErro = "Erro ao cadastrar sala";
 
 			if (error.response?.data) {
@@ -107,7 +102,7 @@ export default function CadastroSala() {
 	};
 
 	return (
-		<ProtectedRoute allowedRoles={["admin", "coordenador"]}>
+		<ProtectedRoute allowedRoles={["admin"]}>
 			<Header title='Cadastro de Sala' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>

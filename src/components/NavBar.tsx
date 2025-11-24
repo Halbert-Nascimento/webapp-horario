@@ -76,7 +76,7 @@ export default function NavBar() {
 					{/* Logo e título no topo */}
 					<div className='flex flex-col items-center py-8'>
 						<Image
-							src='/logo-iesgo.png'
+							src='/logo-iesgo-branca.png'
 							width={120}
 							height={45}
 							alt='Logo IESGO'
@@ -84,7 +84,7 @@ export default function NavBar() {
 							style={{ width: "auto", height: "auto" }}
 						/>
 						<h2 className='text-white text-xl font-semibold tracking-wide uppercase text-center px-4'>
-							Grade Horários
+							Grade Horária
 						</h2>
 					</div>
 
@@ -123,15 +123,18 @@ export default function NavBar() {
 							{/* Cadastros - Bloqueados para professor */}
 							{user && !user.roles.includes("professor") && (
 								<>
-									<li>
-										<Link
-											href='/cadastroCurso'
-											onClick={() => setIsOpen(false)}
-											className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-										>
-											<span className='text-lg'>Cadastro Curso</span>
-										</Link>
-									</li>
+									{/* Cadastro Curso - Bloqueado para coordenador */}
+									{!user.roles.includes("coordenador") && (
+										<li>
+											<Link
+												href='/cadastroCurso'
+												onClick={() => setIsOpen(false)}
+												className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+											>
+												<span className='text-lg'>Cadastro Curso</span>
+											</Link>
+										</li>
+									)}
 									<li>
 										<Link
 											href='/cadastroDisciplina'
@@ -161,15 +164,18 @@ export default function NavBar() {
 											</span>
 										</Link>
 									</li>
-									<li>
-										<Link
-											href='/cadastroSala'
-											onClick={() => setIsOpen(false)}
-											className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-										>
-											<span className='text-lg'>Cadastrar Sala</span>
-										</Link>
-									</li>
+									{/* Cadastrar Sala - Bloqueado para coordenador */}
+									{!user.roles.includes("coordenador") && (
+										<li>
+											<Link
+												href='/cadastroSala'
+												onClick={() => setIsOpen(false)}
+												className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+											>
+												<span className='text-lg'>Cadastrar Sala</span>
+											</Link>
+										</li>
+									)}
 								</>
 							)}
 						</ul>

@@ -2,6 +2,7 @@
 import api from "@/services/api";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { CelulaViewInterface, ModalData } from "../interfaces/types";
 
@@ -31,6 +32,7 @@ const gerarSemestres = (quantidade: number, apenasImpares = true) => {
 };
 
 export default function Tabela() {
+	const { user } = useAuth();
 	const [dados, setDados] = useState<{ [key: string]: string }>({});
 	const [celulasMap, setCelulasMap] = useState<{ [key: string]: number }>({});
 	const [apenasImpares, setApenasImpares] = useState(true);
@@ -62,12 +64,17 @@ export default function Tabela() {
 		try {
 			setLoading(true);
 
-			// Buscar dados de células
-			const celulasResponse = await api.get<CelulaViewInterface[]>(
-				`/celula/${1}/semestre/${1}/ano/${2026}`,
-			);
+			// Verificar se o usuário tem idCurso
+			if (!user?.idCurso) {
+				toast.error("Usuário não possui curso vinculado");
+				setLoading(false);
+				return;
+			}
 
-			console.log("Dados das células:", celulasResponse.data);
+			// Buscar dados de células usando o idCurso do usuário
+			const celulasResponse = await api.get<CelulaViewInterface[]>(
+				`/celula/${user.idCurso}/semestre/${1}/ano/${2026}`,
+			);
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
@@ -99,25 +106,8 @@ export default function Tabela() {
 				// Extrair número do semestre
 				const semestreCelula = celula.semestreCelula;
 
-				// 🔍 LOG DE DEPURAÇÃO
-				console.log("📊 Processando célula:", {
-					diaSemana,
-					semestreCelula,
-					chaveGerada: `${diaSemana}-${semestreCelula}º Semestre`,
-					dadosCompletos: celula,
-				});
-
-				// Verificar se o dia é válido
-				if (!dias.includes(diaSemana)) {
-					console.warn(`⚠️ Dia inválido ignorado: ${diaSemana}`);
-					return;
-				}
-
 				// Criar a chave usando dia_semana e semestre
 				const chave = `${diaSemana}-${semestreCelula}º Semestre`;
-
-				// 🔍 LOG ANTES DE ARMAZENAR
-				console.log("✅ Chave criada:", chave);
 
 				// Armazenar o ID da célula
 				if (celula.idCelula !== undefined && celula.idCelula !== null) {
@@ -150,9 +140,6 @@ export default function Tabela() {
 				dadosMapeados[chave] = conteudo;
 			});
 
-			console.log("📦 Dados finais mapeados:", dadosMapeados);
-			console.log("🔑 Chaves disponíveis:", Object.keys(dadosMapeados));
-
 			setDados(dadosMapeados);
 			setCelulasMap(celulasIdMap);
 		} catch (error) {
@@ -163,8 +150,10 @@ export default function Tabela() {
 	};
 
 	useEffect(() => {
-		carregarDados();
-	}, []);
+		if (user) {
+			carregarDados();
+		}
+	}, [user]);
 
 	const handleCellClick = (dia: string, semestre: string) => {
 		const chave = `${dia}-${semestre}`;

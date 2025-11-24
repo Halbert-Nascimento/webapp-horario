@@ -60,16 +60,12 @@ export default function VincularDisciplinaProfessor() {
 		try {
 			setLoading(true);
 
-			console.log("📤 Iniciando cadastro de vínculos...");
-
 			// Cadastrar cada disciplina separadamente
 			for (const idDisciplina of disciplinasIds) {
 				const payload = {
 					idDisciplina: idDisciplina,
 					idProfessor: professorId,
 				};
-
-				console.log("📤 Enviando payload:", payload);
 				await api.post("/professorDisciplina", payload);
 			}
 

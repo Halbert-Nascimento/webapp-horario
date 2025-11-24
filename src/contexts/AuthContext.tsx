@@ -30,7 +30,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				setToken(storedToken);
 				setUser(parsedUser);
 			} catch (error) {
-				console.error("Erro ao restaurar sessão:", error);
 				localStorage.removeItem("@GradeHorario:token");
 				localStorage.removeItem("@GradeHorario:user");
 			}

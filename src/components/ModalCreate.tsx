@@ -2,6 +2,7 @@
 import api from "@/services/api";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { Professor, Disciplina, ModalProps } from "../interfaces/types";
 
@@ -14,6 +15,7 @@ export default function Modal({
 	idGrade = 1,
 	idCelula,
 }: ModalProps) {
+	const { user } = useAuth();
 	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -49,18 +51,20 @@ export default function Modal({
 	const carregarDisciplinas = async () => {
 		try {
 			setLoading(true);
-			const disciplinasResponse = await api.get<Disciplina[]>(
-				`/disciplina/curso/${1}/semestre/${semestreNumero}`,
-			);
 
-			console.log(
-				`📚 Disciplinas do ${semestreNumero}º semestre:`,
-				disciplinasResponse.data,
+			// Verificar se o usuário tem idCurso
+			if (!user?.idCurso) {
+				toast.error("Usuário não possui curso vinculado");
+				setLoading(false);
+				return;
+			}
+
+			const disciplinasResponse = await api.get<Disciplina[]>(
+				`/disciplina/curso/${user.idCurso}/periodo/${semestreNumero}`,
 			);
 
 			setDisciplinas(disciplinasResponse.data);
 		} catch (error) {
-			console.error("Erro ao carregar disciplinas:", error);
 			toast.error("Erro ao carregar disciplinas");
 		} finally {
 			setLoading(false);
@@ -75,7 +79,6 @@ export default function Modal({
 			);
 			setProfessores(professoresResponse.data);
 		} catch (error) {
-			console.error("Erro ao carregar professores:", error);
 			setProfessores([]);
 			toast.error("Erro ao carregar professores");
 		} finally {
@@ -131,8 +134,6 @@ export default function Modal({
 				idDiaSemana: idDiaSemana, // 1=Segunda, 2=Terça, etc
 				semestre: semestreNumero, // 1, 2, 3, 4, etc (semestre do curso)
 			};
-
-			console.log("📤 Enviando payload:", payload);
 
 			await api.post("/celula", payload);
 			toast.success("Aula cadastrada com sucesso!");

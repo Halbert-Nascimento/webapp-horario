@@ -52,7 +52,6 @@ export default function DisciplinaSelector({
 
 				setProfessores(professoresUnicos);
 			} catch (err) {
-				console.error("Erro ao carregar professores:", err);
 				setProfessores([]);
 			}
 		};
@@ -85,8 +84,6 @@ export default function DisciplinaSelector({
 					? cursoRes.data[0]
 					: cursoRes.data;
 
-				console.log(cursoRes.data);
-
 				// Definir curso
 				setCurso(dadosCurso || null);
 
@@ -105,7 +102,6 @@ export default function DisciplinaSelector({
 
 				setDisciplinas(disciplinasUnicas || []);
 			} catch (err: any) {
-				console.error("Erro ao carregar dados:", err);
 				setError("Erro ao carregar dados");
 			} finally {
 				setLoading(false);
