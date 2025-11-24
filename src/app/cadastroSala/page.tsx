@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
 import SelectCadastro from "@/components/SelectCadastro";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -106,7 +107,7 @@ export default function CadastroSala() {
 	};
 
 	return (
-		<>
+		<ProtectedRoute allowedRoles={["admin", "coordenador"]}>
 			<Header title='Cadastro de Sala' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
@@ -165,6 +166,6 @@ export default function CadastroSala() {
 					}
 				/>
 			</FormCadastro>
-		</>
+		</ProtectedRoute>
 	);
 }

@@ -109,3 +109,38 @@ export interface SelectCadastroProps {
 	options: { value: string | number; label: string }[];
 	placeholder?: string;
 }
+
+// ========================================
+// 🔐 TIPOS DE AUTENTICAÇÃO
+// ========================================
+
+export interface User {
+	idUsuario: number;
+	nomeUsuario: string;
+	emailUsuario: string;
+	idPerfil: number;
+	nomePerfil: string;
+	idCurso: number | null;
+	nomeCurso: string | null;
+	roles: string[];
+}
+
+export interface LoginCredentials {
+	email: string;
+	senha: string;
+}
+
+export interface AuthResponse {
+	message: string;
+	token: string;
+	user: User;
+}
+
+export interface AuthContextType {
+	user: User | null;
+	token: string | null;
+	login: (credentials: LoginCredentials) => Promise<void>;
+	logout: () => void;
+	isAuthenticated: boolean;
+	isLoading: boolean;
+}

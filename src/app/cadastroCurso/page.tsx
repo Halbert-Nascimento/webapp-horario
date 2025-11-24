@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import NavBar from "@/components/NavBar";
 import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -64,7 +65,7 @@ export default function CadastroCurso() {
 	};
 
 	return (
-		<>
+		<ProtectedRoute allowedRoles={["admin"]}>
 			<Header title='Cadastro de Curso' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
@@ -101,6 +102,6 @@ export default function CadastroCurso() {
 					disabled={loading}
 				/>
 			</FormCadastro>
-		</>
+		</ProtectedRoute>
 	);
 }
