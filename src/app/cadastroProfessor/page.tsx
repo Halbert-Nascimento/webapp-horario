@@ -6,6 +6,7 @@ import FormCadastro from "@/components/FormCadastro";
 import InputCadastro from "@/components/InputCadastro";
 import DisponibilidadeDias from "@/components/DisponibilidadeDias";
 import SelectCadastro from "@/components/SelectCadastro";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -20,11 +21,11 @@ export default function CadastroProfessor() {
 	const [loading, setLoading] = useState(false);
 
 	const opcoesTitulacao = [
-		{ value: "Graduado", label: "Graduado" },
-		{ value: "Especialista", label: "Especialista" },
-		{ value: "Mestre", label: "Mestre" },
-		{ value: "Doutor", label: "Doutor" },
-		{ value: "Pos Doutor", label: "Pós Doutor" },
+		{ value: "graduado", label: "Graduado" },
+		{ value: "especialista", label: "Especialista" },
+		{ value: "mestre", label: "Mestre" },
+		{ value: "doutor", label: "Doutor" },
+		{ value: "doutora", label: "Doutora" },
 	];
 
 	const handleDisponibilidadeChange = (dias: string[]) => {
@@ -70,14 +71,10 @@ export default function CadastroProfessor() {
 				email: email.trim(),
 				titulacao: titulacao.trim(),
 				curriculo_lattes: curriculoLattes.trim() || null,
-				coordenador_idProfessor: null, // Definir como null ou um ID específico se necessário
+				idCoordenador: null, // Definir como null ou um ID específico se necessário
 			};
 
-			console.log("📤 Enviando payload professor:", payloadProfessor);
-
 			const responseProfessor = await api.post("/professor", payloadProfessor);
-
-			console.log("✅ Resposta professor:", responseProfessor.data);
 
 			// 2. Buscar o ID do professor cadastrado
 			const idProfessor =
@@ -105,7 +102,6 @@ export default function CadastroProfessor() {
 						idDiaSemana: parseInt(idDiaSemana),
 					};
 
-					console.log("📤 Enviando disponibilidade:", payloadDisponibilidade);
 					await api.post("/disponibilidade", payloadDisponibilidade);
 				}
 			} else {
@@ -116,7 +112,6 @@ export default function CadastroProfessor() {
 						idDiaSemana: parseInt(idDiaSemana),
 					};
 
-					console.log("📤 Enviando disponibilidade:", payloadDisponibilidade);
 					await api.post("/disponibilidade", payloadDisponibilidade);
 				}
 			}
@@ -130,9 +125,6 @@ export default function CadastroProfessor() {
 			setCurriculoLattes("");
 			setDiasSelecionados([]);
 		} catch (error: any) {
-			console.error("❌ ERRO completo:", error);
-			console.error("❌ Resposta da API:", error.response?.data);
-
 			let mensagemErro = "Erro ao cadastrar professor";
 
 			if (error.response?.data) {
@@ -147,8 +139,6 @@ export default function CadastroProfessor() {
 				mensagemErro = error.message;
 			}
 
-			console.error("📢 Mensagem de erro extraída:", mensagemErro);
-
 			toast.error(mensagemErro, {
 				duration: 5000,
 			});
@@ -158,7 +148,7 @@ export default function CadastroProfessor() {
 	};
 
 	return (
-		<>
+		<ProtectedRoute allowedRoles={["admin", "coordenador"]}>
 			<Header title='Cadastro de professor' />
 			<NavBar />
 			<FormCadastro onSubmit={handleSubmit}>
@@ -196,6 +186,6 @@ export default function CadastroProfessor() {
 				/>
 				<DisponibilidadeDias onChange={handleDisponibilidadeChange} />
 			</FormCadastro>
-		</>
+		</ProtectedRoute>
 	);
 }

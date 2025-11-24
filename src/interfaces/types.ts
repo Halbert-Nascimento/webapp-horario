@@ -1,7 +1,9 @@
 export interface CelulaViewInterface {
 	idCelula: number;
+	semestreCelula: number;
 	idCurso: number;
 	curso: string;
+	duraçaoSemestres: number;
 	idDisciplina: number;
 	codigoDisciplina: string;
 	disciplina: string;
@@ -13,23 +15,11 @@ export interface CelulaViewInterface {
 	idDiaSemana: number;
 	dia_semana: string;
 	idGrade: number;
-	semestre: string;
+	semestreLetivo: number;
+	anoLetivo: number;
 	idSala: number;
 	codigoSala: string;
 	nomeSala: string;
-	criadoEm: string | null;
-	semestreDisciplina?: number; // Opcional caso o backend não retorne
-}
-
-export interface CelulaCursoViewInterface {
-	idCurso: number;
-	nomeCurso: string;
-	nomeDisciplina: string;
-	modadalidade: string;
-	nomeProfessor: string;
-	titulacao: string;
-	dia_semana: string;
-	semestre: string;
 }
 
 export interface ModalProps {
@@ -60,12 +50,13 @@ export interface DisponibilidadeDiasProps {
 
 export interface Disciplina {
 	idDisciplina: number;
-	codigoDisciplina: string;
 	nomeDisciplina: string;
+	codigoDisciplina: string;
 	cargaHoraria: number;
-	modalidade: "Presencial" | "Online" | "Hibrido";
-	tipoSala: "Laboratório" | "Sala" | "Sincrona";
-	semestreDisciplina: number;
+	semestreDisciplina?: number; // Campo antigo (pode manter para compatibilidade)
+	periodo: number; // ✅ NOVO: Campo que vem da API
+	tipoSala?: string;
+	idCurso?: number;
 }
 
 export interface DisciplinaSelectorProps {
@@ -117,4 +108,39 @@ export interface SelectCadastroProps {
 	disabled?: boolean;
 	options: { value: string | number; label: string }[];
 	placeholder?: string;
+}
+
+// ========================================
+// 🔐 TIPOS DE AUTENTICAÇÃO
+// ========================================
+
+export interface User {
+	idUsuario: number;
+	nomeUsuario: string;
+	emailUsuario: string;
+	idPerfil: number;
+	nomePerfil: string;
+	idCurso: number | null;
+	nomeCurso: string | null;
+	roles: string[];
+}
+
+export interface LoginCredentials {
+	email: string;
+	senha: string;
+}
+
+export interface AuthResponse {
+	message: string;
+	token: string;
+	user: User;
+}
+
+export interface AuthContextType {
+	user: User | null;
+	token: string | null;
+	login: (credentials: LoginCredentials) => Promise<void>;
+	logout: () => void;
+	isAuthenticated: boolean;
+	isLoading: boolean;
 }

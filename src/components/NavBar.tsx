@@ -2,9 +2,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function NavBar() {
 	const [isOpen, setIsOpen] = useState(false);
+	const { user, logout } = useAuth();
+
+	const handleLogout = () => {
+		setIsOpen(false);
+		logout();
+	};
 
 	return (
 		<>
@@ -69,7 +76,7 @@ export default function NavBar() {
 					{/* Logo e título no topo */}
 					<div className='flex flex-col items-center py-8'>
 						<Image
-							src='/logo-iesgo.png'
+							src='/logo-iesgo-branca.png'
 							width={120}
 							height={45}
 							alt='Logo IESGO'
@@ -77,9 +84,28 @@ export default function NavBar() {
 							style={{ width: "auto", height: "auto" }}
 						/>
 						<h2 className='text-white text-xl font-semibold tracking-wide uppercase text-center px-4'>
-							Grade Horários
+							Grade Horária
 						</h2>
 					</div>
+
+					{/* Informações do Usuário */}
+					{user && (
+						<div className='px-4 py-4 bg-blue-800 mx-4 rounded-lg mb-4'>
+							<div className='flex items-center space-x-3'>
+								<div className='w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg'>
+									{user.nomeUsuario.charAt(0).toUpperCase()}
+								</div>
+								<div className='flex-1 min-w-0'>
+									<p className='text-white font-semibold text-sm truncate'>
+										{user.nomeUsuario}
+									</p>
+									<p className='text-blue-200 text-xs truncate'>
+										{user.nomePerfil}
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
 
 					{/* Links de navegação */}
 					<nav className='flex-1 px-4 py-4'>
@@ -93,55 +119,90 @@ export default function NavBar() {
 									<span className='text-lg'>Home</span>
 								</Link>
 							</li>
-							<li>
-								<Link
-									href='/cadastroCurso'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastro Curso</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/cadastroDisciplina'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastro Disciplina</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/cadastroProfessor'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastro Professor</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/vincularDisciplinaProfessor'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>
-										Vincular Professor a Disciplina
-									</span>
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='/cadastroSala'
-									onClick={() => setIsOpen(false)}
-									className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
-								>
-									<span className='text-lg'>Cadastrar Sala</span>
-								</Link>
-							</li>
+
+							{/* Cadastros - Bloqueados para professor */}
+							{user && !user.roles.includes("professor") && (
+								<>
+									{/* Cadastro Curso - Bloqueado para coordenador */}
+									{!user.roles.includes("coordenador") && (
+										<li>
+											<Link
+												href='/cadastroCurso'
+												onClick={() => setIsOpen(false)}
+												className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+											>
+												<span className='text-lg'>Cadastro Curso</span>
+											</Link>
+										</li>
+									)}
+									<li>
+										<Link
+											href='/cadastroDisciplina'
+											onClick={() => setIsOpen(false)}
+											className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+										>
+											<span className='text-lg'>Cadastro Disciplina</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											href='/cadastroProfessor'
+											onClick={() => setIsOpen(false)}
+											className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+										>
+											<span className='text-lg'>Cadastro Professor</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											href='/vincularDisciplinaProfessor'
+											onClick={() => setIsOpen(false)}
+											className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+										>
+											<span className='text-lg'>
+												Vincular Professor a Disciplina
+											</span>
+										</Link>
+									</li>
+									{/* Cadastrar Sala - Bloqueado para coordenador */}
+									{!user.roles.includes("coordenador") && (
+										<li>
+											<Link
+												href='/cadastroSala'
+												onClick={() => setIsOpen(false)}
+												className='flex items-center text-gray-200 hover:bg-blue-800 rounded-lg px-4 py-3 transition-colors'
+											>
+												<span className='text-lg'>Cadastrar Sala</span>
+											</Link>
+										</li>
+									)}
+								</>
+							)}
 						</ul>
 					</nav>
+
+					{/* Botão de Logout */}
+					<div className='p-4 border-t border-blue-800'>
+						<button
+							onClick={handleLogout}
+							className='w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-3 transition-colors'
+						>
+							<svg
+								className='w-5 h-5'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+							>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
+								/>
+							</svg>
+							<span className='text-lg font-semibold'>Sair</span>
+						</button>
+					</div>
 				</div>
 			</div>
 		</>

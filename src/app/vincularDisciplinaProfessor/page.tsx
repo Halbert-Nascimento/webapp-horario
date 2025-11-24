@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import NavBar from "@/components/NavBar";
 import DisciplinaSelector from "@/components/DisciplinaSelector";
 import FormCadastro from "@/components/FormCadastro";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
@@ -59,16 +60,12 @@ export default function VincularDisciplinaProfessor() {
 		try {
 			setLoading(true);
 
-			console.log("📤 Iniciando cadastro de vínculos...");
-
 			// Cadastrar cada disciplina separadamente
 			for (const idDisciplina of disciplinasIds) {
 				const payload = {
 					idDisciplina: idDisciplina,
 					idProfessor: professorId,
 				};
-
-				console.log("📤 Enviando payload:", payload);
 				await api.post("/professorDisciplina", payload);
 			}
 
@@ -104,7 +101,7 @@ export default function VincularDisciplinaProfessor() {
 	};
 
 	return (
-		<>
+		<ProtectedRoute allowedRoles={["admin", "coordenador"]}>
 			<Header title='Vincular Professor a Disciplina' />
 			<NavBar />
 			<div className='[&>div>div]:lg:max-w-3xl'>
@@ -116,6 +113,6 @@ export default function VincularDisciplinaProfessor() {
 					/>
 				</FormCadastro>
 			</div>
-		</>
+		</ProtectedRoute>
 	);
 }

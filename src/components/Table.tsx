@@ -2,6 +2,7 @@
 import api from "@/services/api";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { CelulaViewInterface, ModalData } from "../interfaces/types";
 
@@ -31,6 +32,7 @@ const gerarSemestres = (quantidade: number, apenasImpares = true) => {
 };
 
 export default function Tabela() {
+	const { user } = useAuth();
 	const [dados, setDados] = useState<{ [key: string]: string }>({});
 	const [celulasMap, setCelulasMap] = useState<{ [key: string]: number }>({});
 	const [apenasImpares, setApenasImpares] = useState(true);
@@ -62,8 +64,17 @@ export default function Tabela() {
 		try {
 			setLoading(true);
 
-			// Buscar dados de células
-			const celulasResponse = await api.get<CelulaViewInterface[]>("/celula");
+			// Verificar se o usuário tem idCurso
+			if (!user?.idCurso) {
+				toast.error("Usuário não possui curso vinculado");
+				setLoading(false);
+				return;
+			}
+
+			// Buscar dados de células usando o idCurso do usuário
+			const celulasResponse = await api.get<CelulaViewInterface[]>(
+				`/celula/${user.idCurso}/semestre/${1}/ano/${2026}`,
+			);
 
 			// Mapear os dados da API para o formato do estado
 			const dadosMapeados: { [key: string]: string } = {};
@@ -75,21 +86,28 @@ export default function Tabela() {
 				if (typeof celula.dia_semana === "number") {
 					diaSemana = getDiaSemanaString(celula.dia_semana);
 				} else {
-					diaSemana = celula.dia_semana;
+					// Converter de "segunda" para "Segunda-feira"
+					const diaMinusculo = celula.dia_semana.toLowerCase().trim();
+					const mapeamentoDias: { [key: string]: string } = {
+						segunda: "Segunda-feira",
+						terça: "Terça-feira",
+						terca: "Terça-feira", // fallback sem acento
+						quarta: "Quarta-feira",
+						quinta: "Quinta-feira",
+						sexta: "Sexta-feira",
+						sábado: "Sábado",
+						sabado: "Sábado", // fallback sem acento
+						domingo: "Domingo",
+					};
+
+					diaSemana = mapeamentoDias[diaMinusculo] || celula.dia_semana;
 				}
 
-				// Extrair número do semestre do campo semestre (ex: "2025.1" -> 1)
-				// Assumindo que semestreDisciplina existe no backend
-				const semestreNumero = celula.semestreDisciplina || 1;
-
-				// Verificar se o dia é válido
-				if (!dias.includes(diaSemana)) {
-					console.warn(`⚠️ Dia inválido ignorado: ${diaSemana}`);
-					return;
-				}
+				// Extrair número do semestre
+				const semestreCelula = celula.semestreCelula;
 
 				// Criar a chave usando dia_semana e semestre
-				const chave = `${diaSemana}-${semestreNumero}º Semestre`;
+				const chave = `${diaSemana}-${semestreCelula}º Semestre`;
 
 				// Armazenar o ID da célula
 				if (celula.idCelula !== undefined && celula.idCelula !== null) {
@@ -132,8 +150,10 @@ export default function Tabela() {
 	};
 
 	useEffect(() => {
-		carregarDados();
-	}, []);
+		if (user) {
+			carregarDados();
+		}
+	}, [user]);
 
 	const handleCellClick = (dia: string, semestre: string) => {
 		const chave = `${dia}-${semestre}`;
