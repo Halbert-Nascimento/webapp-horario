@@ -50,7 +50,7 @@ export default function CadastroDisciplina() {
 			setLoadingCursos(true);
 			const response = await api.get<Curso[]>("/curso");
 			setCursos(response.data);
-		} catch (error) {
+		} catch {
 			toast.error("Erro ao carregar lista de cursos");
 		} finally {
 			setLoadingCursos(false);
@@ -104,7 +104,7 @@ export default function CadastroDisciplina() {
 			};
 
 			// Cadastrar a disciplina com todos os dados
-			const response = await api.post("/disciplina", payloadDisciplina);
+			await api.post("/disciplina", payloadDisciplina);
 
 			toast.success("Disciplina cadastrada com sucesso!");
 
@@ -116,7 +116,8 @@ export default function CadastroDisciplina() {
 			setModalidade("");
 			setTipoSala("");
 			setCargaHoraria("");
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string; mensagem?: string } }; message?: string };
 			let mensagemErro = "Erro ao cadastrar disciplina";
 
 			if (error.response?.data) {

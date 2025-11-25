@@ -18,11 +18,9 @@ export default function CadastroSala() {
 		capacidadeSala: "",
 		tipoSala: "",
 		recursos: "",
-		localizacao: "",
-	});
-	const [loading, setLoading] = useState(false);
-
-	const opcoesSala = [
+			localizacao: "",
+		});
+	const [isLoading, setIsLoading] = useState(false);	const opcoesSala = [
 		{ value: "aboratóri", label: "Laboratório" },
 		{ value: "sala de aul", label: "Sala de Aula" },
 		{ value: "auditorio", label: "Auditório" },
@@ -49,7 +47,7 @@ export default function CadastroSala() {
 		}
 
 		try {
-			setLoading(true);
+			setIsLoading(true);
 
 			const payload = {
 				codigoSala: formData.codigoSala.trim().toUpperCase(),
@@ -78,7 +76,8 @@ export default function CadastroSala() {
 				recursos: "",
 				localizacao: "",
 			});
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string; mensagem?: string } }; message?: string };
 			let mensagemErro = "Erro ao cadastrar sala";
 
 			if (error.response?.data) {
@@ -97,7 +96,7 @@ export default function CadastroSala() {
 				duration: 5000,
 			});
 		} finally {
-			setLoading(false);
+			setIsLoading(false);
 		}
 	};
 

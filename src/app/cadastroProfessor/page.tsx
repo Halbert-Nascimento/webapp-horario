@@ -84,9 +84,9 @@ export default function CadastroProfessor() {
 
 			if (!idProfessor) {
 				// Se não retornou o ID, buscar todos os professores e pegar o último
-				const responseProfessores = await api.get("/professor");
+				const responseProfessores = await api.get<Array<{ idProfessor: number; email: string }>>("/professor");
 				const professorCadastrado = responseProfessores.data.find(
-					(prof: any) => prof.email === email.trim(),
+					(prof) => prof.email === email.trim(),
 				);
 
 				if (!professorCadastrado || !professorCadastrado.idProfessor) {
@@ -124,7 +124,8 @@ export default function CadastroProfessor() {
 			setTitulacao("");
 			setCurriculoLattes("");
 			setDiasSelecionados([]);
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string; mensagem?: string } }; message?: string };
 			let mensagemErro = "Erro ao cadastrar professor";
 
 			if (error.response?.data) {

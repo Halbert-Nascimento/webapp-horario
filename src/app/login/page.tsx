@@ -20,7 +20,7 @@ export default function LoginPage() {
 		try {
 			setLoading(true);
 			await login({ email, senha });
-		} catch (error) {
+		} catch {
 			// Erro já tratado no AuthContext
 		} finally {
 			setLoading(false);

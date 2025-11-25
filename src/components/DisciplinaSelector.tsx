@@ -100,10 +100,10 @@ export default function DisciplinaSelector({
 						self.findIndex((d) => d.idDisciplina === disc.idDisciplina),
 				);
 
-				setDisciplinas(disciplinasUnicas || []);
-			} catch (err: any) {
-				setError("Erro ao carregar dados");
-			} finally {
+			setDisciplinas(disciplinasUnicas || []);
+		} catch {
+			setError("Erro ao carregar dados");
+		} finally {
 				setLoading(false);
 			}
 		};

@@ -1,6 +1,6 @@
 "use client";
 import api from "@/services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -60,7 +60,7 @@ export default function Tabela() {
 		return diasMap[diaNumero] || "";
 	};
 
-	const carregarDados = async () => {
+	const carregarDados = useCallback(async () => {
 		try {
 			setLoading(true);
 
@@ -142,18 +142,18 @@ export default function Tabela() {
 
 			setDados(dadosMapeados);
 			setCelulasMap(celulasIdMap);
-		} catch (error) {
+		} catch {
 			toast.error("Erro ao carregar dados da tabela");
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [user]);
 
 	useEffect(() => {
 		if (user) {
 			carregarDados();
 		}
-	}, [user]);
+	}, [user, carregarDados]);
 
 	const handleCellClick = (dia: string, semestre: string) => {
 		const chave = `${dia}-${semestre}`;
@@ -181,7 +181,8 @@ export default function Tabela() {
 			setModalDeleteAberto(false);
 			setCelulaParaDeletar(null);
 			await carregarDados();
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: string | { error?: string; message?: string } } };
 			let mensagemErro = "Erro ao excluir a aula";
 
 			if (error.response?.data?.error) {

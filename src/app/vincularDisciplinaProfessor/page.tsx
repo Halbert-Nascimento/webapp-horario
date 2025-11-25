@@ -9,27 +9,23 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/services/api";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
-import { Professor, Disciplina } from "@/interfaces/types";
+import { Professor } from "@/interfaces/types";
 
 export default function VincularDisciplinaProfessor() {
 	const [disciplinasIds, setDisciplinasIds] = useState<number[]>([]);
 	const [professorId, setProfessorId] = useState<number | null>(null);
-	const [professores, setProfessores] = useState<Professor[]>([]); // Adicione esta linha
+	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [resetKey, setResetKey] = useState(0);
 	const [loading, setLoading] = useState(false);
-	const [loadingProfessores, setLoadingProfessores] = useState(false);
 
 	// Carregar professores ao montar o componente
 	useEffect(() => {
 		const carregarProfessores = async () => {
 			try {
-				setLoadingProfessores(true);
 				const response = await api.get<Professor[]>("/professor");
 				setProfessores(response.data);
-			} catch (error) {
+			} catch {
 				toast.error("Erro ao carregar professores");
-			} finally {
-				setLoadingProfessores(false);
 			}
 		};
 
@@ -77,7 +73,8 @@ export default function VincularDisciplinaProfessor() {
 			setDisciplinasIds([]);
 			setProfessorId(null);
 			setResetKey((prev) => prev + 1);
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string; mensagem?: string } }; message?: string };
 			let mensagemErro = "Erro ao vincular disciplinas";
 
 			if (error.response?.data) {

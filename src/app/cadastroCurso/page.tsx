@@ -49,13 +49,14 @@ export default function CadastroCurso() {
 			setCodigoCurso("");
 			setDescricaoCurso("");
 			setQuantidadeSemestres("");
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
 			let mensagemErro = "Erro ao cadastrar curso";
 
-			if (error.response?.data?.message) {
-				mensagemErro = error.response.data.message;
-			} else if (error.response?.data?.error) {
-				mensagemErro = error.response.data.error;
+			if (axiosError.response?.data?.message) {ge) {
+				mensagemErro = axiosError.response.data.message;
+			} else if (axiosError.response?.data?.error) {
+				mensagemErro = axiosError.response.data.error;
 			}
 
 			toast.error(mensagemErro);

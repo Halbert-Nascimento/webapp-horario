@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				const parsedUser = JSON.parse(storedUser);
 				setToken(storedToken);
 				setUser(parsedUser);
-			} catch (error) {
+			} catch {
 				localStorage.removeItem("@GradeHorario:token");
 				localStorage.removeItem("@GradeHorario:user");
 			}
@@ -56,14 +56,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 			// Redirecionar para home
 			router.push("/home");
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: { message?: string }; status?: number } };
 			let mensagemErro = "Erro ao fazer login";
 
-			if (error.response?.data?.message) {
-				mensagemErro = error.response.data.message;
-			} else if (error.response?.status === 401) {
+			if (axiosError.response?.data?.message) {
+				mensagemErro = axiosError.response.data.message;
+			} else if (axiosError.response?.status === 401) {
 				mensagemErro = "Email ou senha incorretos";
-			} else if (error.response?.status === 403) {
+			} else if (axiosError.response?.status === 403) {
 				mensagemErro = "Sua conta está inativa. Contate o administrador.";
 			}
 

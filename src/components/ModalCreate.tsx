@@ -1,6 +1,6 @@
 "use client";
 import api from "@/services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -36,7 +36,7 @@ export default function Modal({
 			});
 			setProfessores([]);
 		}
-	}, [isOpen, semestreNumero]);
+	}, [isOpen, carregarDisciplinas]);
 
 	// Carregar professores quando uma disciplina for selecionada
 	useEffect(() => {
@@ -48,7 +48,7 @@ export default function Modal({
 		}
 	}, [formData.disciplinaId]);
 
-	const carregarDisciplinas = async () => {
+	const carregarDisciplinas = useCallback(async () => {
 		try {
 			setLoading(true);
 
@@ -64,12 +64,12 @@ export default function Modal({
 			);
 
 			setDisciplinas(disciplinasResponse.data);
-		} catch (error) {
+		} catch {
 			toast.error("Erro ao carregar disciplinas");
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [user, semestreNumero]);
 
 	const carregarProfessoresPorDisciplina = async (idDisciplina: number) => {
 		try {
@@ -78,7 +78,7 @@ export default function Modal({
 				`/professorDisciplina/${idDisciplina}`,
 			);
 			setProfessores(professoresResponse.data);
-		} catch (error) {
+		} catch {
 			setProfessores([]);
 			toast.error("Erro ao carregar professores");
 		} finally {
@@ -138,7 +138,8 @@ export default function Modal({
 			await api.post("/celula", payload);
 			toast.success("Aula cadastrada com sucesso!");
 			onSave(conteudo);
-		} catch (error: any) {
+		} catch (error) {
+			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string } }; message?: string };
 			let mensagemErro = "Erro ao salvar os dados";
 
 			if (error.response?.data?.error) {
