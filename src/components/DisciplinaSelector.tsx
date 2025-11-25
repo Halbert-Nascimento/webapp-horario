@@ -8,6 +8,9 @@ import {
 } from "@/interfaces/types";
 import { AxiosResponse } from "axios";
 import ResumoSelecao from "./ResumoSelecao";
+import { useAuth } from "@/contexts/AuthContext";
+
+import formatarNome from "@/utils/formatarNome";
 
 interface Curso {
 	idCurso: number;
@@ -20,6 +23,7 @@ export default function DisciplinaSelector({
 	onChange,
 	className = "",
 }: DisciplinaSelectorProps) {
+	const { user } = useAuth();
 	const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
 	const [curso, setCurso] = useState<Curso | null>(null);
 	const [selecionados, setSelecionados] = useState<number[]>([]);
@@ -36,9 +40,14 @@ export default function DisciplinaSelector({
 	// Carregar professores ao montar o componente
 	useEffect(() => {
 		const carregarProfessores = async () => {
+			if (!user?.idCurso) {
+				setProfessores([]);
+				return;
+			}
+
 			try {
 				const response: AxiosResponse<Professor[]> = await api.get(
-					"/professor",
+					`/professor/curso/${user.idCurso}`,
 				);
 
 				const professoresData: Professor[] = Array.isArray(response.data)
@@ -57,7 +66,7 @@ export default function DisciplinaSelector({
 		};
 
 		carregarProfessores();
-	}, []);
+	}, [user]);
 
 	// Carregar dados do curso e disciplinas
 	useEffect(() => {
@@ -70,14 +79,16 @@ export default function DisciplinaSelector({
 		const carregarDados = async () => {
 			try {
 				setLoading(true);
-			setError(null);
+				setError(null);
 
-			// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
-			const [cursoRes, disciplinasRes]: [AxiosResponse<Curso | Curso[]>, AxiosResponse<Disciplina[]>] =
-				await Promise.all([
+				// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
+				const [cursoRes, disciplinasRes]: [
+					AxiosResponse<Curso | Curso[]>,
+					AxiosResponse<Disciplina[]>,
+				] = await Promise.all([
 					api.get<Curso | Curso[]>(`/curso/${1}`),
 					api.get<Disciplina[]>(`/disciplina/curso/${1}`),
-				]);				// A API retorna um array, pegar o primeiro elemento
+				]); // A API retorna um array, pegar o primeiro elemento
 				const dadosCurso = Array.isArray(cursoRes.data)
 					? cursoRes.data[0]
 					: cursoRes.data;
@@ -98,10 +109,10 @@ export default function DisciplinaSelector({
 						self.findIndex((d) => d.idDisciplina === disc.idDisciplina),
 				);
 
-			setDisciplinas(disciplinasUnicas || []);
-		} catch {
-			setError("Erro ao carregar dados");
-		} finally {
+				setDisciplinas(disciplinasUnicas || []);
+			} catch {
+				setError("Erro ao carregar dados");
+			} finally {
 				setLoading(false);
 			}
 		};
@@ -189,7 +200,7 @@ export default function DisciplinaSelector({
 					<option value=''>Selecione um professor</option>
 					{professores.map((prof) => (
 						<option key={prof.idProfessor} value={prof.idProfessor}>
-							{prof.nomeProfessor}
+							{formatarNome(prof.nomeProfessor)}
 						</option>
 					))}
 				</select>

@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { Professor, Disciplina, ModalProps } from "../interfaces/types";
+import formatarNome from "@/utils/formatarNome";
 
 export default function Modal({
 	isOpen,
@@ -220,7 +221,8 @@ export default function Modal({
 										key={disciplina.idDisciplina}
 										value={disciplina.idDisciplina}
 									>
-										{disciplina.codigoDisciplina} - {disciplina.nomeDisciplina}
+										{disciplina.codigoDisciplina} -{" "}
+										{formatarNome(disciplina.nomeDisciplina)}
 									</option>
 								))}
 							</select>
@@ -250,7 +252,7 @@ export default function Modal({
 										key={professor.idProfessor}
 										value={professor.idProfessor}
 									>
-										{professor.nomeProfessor}
+										{formatarNome(professor.nomeProfessor)}
 										{professor.titulacao && ` (${professor.titulacao})`}
 									</option>
 								))}

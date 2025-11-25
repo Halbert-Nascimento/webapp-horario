@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
+import formatarNome from "@/utils/formatarNome";
+
 import { CelulaViewInterface, ModalData } from "../interfaces/types";
 
 import ModalCreate from "./ModalCreate";
@@ -120,21 +122,29 @@ export default function Tabela() {
 
 					// Linha 1: Código + Nome da Disciplina
 					if (celula.codigoDisciplina && celula.disciplina) {
-						linhas.push(`${celula.codigoDisciplina} - ${celula.disciplina}`);
+						linhas.push(
+							`${celula.codigoDisciplina.toUpperCase()} - ${formatarNome(
+								celula.disciplina,
+							)}`,
+						);
 					} else if (celula.disciplina) {
 						linhas.push(celula.disciplina);
 					}
 
 					// Linha 2: Tipo de Sala
 					if (celula.tipo_sala) {
-						linhas.push(`${celula.tipo_sala}`);
+						linhas.push(`${formatarNome(celula.tipo_sala)}`);
 					}
 
 					// Linha 3: Professor + Titulação
 					if (celula.professor && celula.titulacao) {
-						linhas.push(`${celula.professor} (${celula.titulacao})`);
+						linhas.push(
+							`${formatarNome(celula.professor)} (${formatarNome(
+								celula.titulacao,
+							)})`,
+						);
 					} else if (celula.professor) {
-						linhas.push(celula.professor);
+						linhas.push(formatarNome(celula.professor));
 					}
 
 					const conteudo = linhas.join("\n");
@@ -236,13 +246,14 @@ export default function Tabela() {
 
 	return (
 		<div className='flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 lg:ml-72 pt-20'>
-			{/*<button
+			{/*}
+			<button
 				onClick={() => setApenasImpares(!apenasImpares)}
 				className='mb-4 bg-blue-800 text-white px-4 py-2 rounded text-sm sm:text-base'
 			>
 				{apenasImpares ? "Semestres Pares" : "Semestres Ímpares"}
-			</button> */}
-
+			</button>
+			*/}
 			<div className='w-full overflow-x-auto shadow-lg max-w-[95vw] lg:max-w-[1200px]'>
 				<table className='border-separate border-spacing-0 border text-center w-full'>
 					<thead>
@@ -295,7 +306,6 @@ export default function Tabela() {
 					</tbody>
 				</table>
 			</div>
-
 			{/* Modal de Criação */}
 			{modalData && (
 				<ModalCreate
@@ -307,7 +317,6 @@ export default function Tabela() {
 					idGrade={1}
 				/>
 			)}
-
 			{/* Modal de Exclusão */}
 			{celulaParaDeletar && (
 				<ModalDelete
