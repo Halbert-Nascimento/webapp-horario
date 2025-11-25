@@ -26,27 +26,6 @@ export default function Modal({
 
 	const semestreNumero = parseInt(semestre.replace("º Semestre", ""));
 
-	useEffect(() => {
-		if (isOpen) {
-			carregarDisciplinas();
-			setFormData({
-				professorId: "",
-				disciplinaId: "",
-			});
-			setProfessores([]);
-		}
-	}, [isOpen, carregarDisciplinas]);
-
-	// Carregar professores quando uma disciplina for selecionada
-	useEffect(() => {
-		if (formData.disciplinaId) {
-			carregarProfessoresPorDisciplina(parseInt(formData.disciplinaId));
-		} else {
-			setProfessores([]);
-			setFormData((prev) => ({ ...prev, professorId: "" }));
-		}
-	}, [formData.disciplinaId]);
-
 	const carregarDisciplinas = useCallback(async () => {
 		try {
 			setLoading(true);
@@ -69,6 +48,27 @@ export default function Modal({
 			setLoading(false);
 		}
 	}, [user, semestreNumero]);
+
+	useEffect(() => {
+		if (isOpen) {
+			carregarDisciplinas();
+			setFormData({
+				professorId: "",
+				disciplinaId: "",
+			});
+			setProfessores([]);
+		}
+	}, [isOpen, carregarDisciplinas]);
+
+	// Carregar professores quando uma disciplina for selecionada
+	useEffect(() => {
+		if (formData.disciplinaId) {
+			carregarProfessoresPorDisciplina(parseInt(formData.disciplinaId));
+		} else {
+			setProfessores([]);
+			setFormData((prev) => ({ ...prev, professorId: "" }));
+		}
+	}, [formData.disciplinaId]);
 
 	const carregarProfessoresPorDisciplina = async (idDisciplina: number) => {
 		try {
