@@ -20,7 +20,7 @@ export default function CadastroSala() {
 		recursos: "",
 			localizacao: "",
 		});
-	const [isLoading, setIsLoading] = useState(false);	const opcoesSala = [
+	const [submitting, setSubmitting] = useState(false);	const opcoesSala = [
 		{ value: "aboratóri", label: "Laboratório" },
 		{ value: "sala de aul", label: "Sala de Aula" },
 		{ value: "auditorio", label: "Auditório" },
@@ -47,7 +47,7 @@ export default function CadastroSala() {
 		}
 
 		try {
-			setIsLoading(true);
+			setSubmitting(true);
 
 			const payload = {
 				codigoSala: formData.codigoSala.trim().toUpperCase(),
@@ -96,7 +96,7 @@ export default function CadastroSala() {
 				duration: 5000,
 			});
 		} finally {
-			setIsLoading(false);
+			setSubmitting(false);
 		}
 	};
 

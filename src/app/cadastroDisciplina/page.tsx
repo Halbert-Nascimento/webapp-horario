@@ -120,16 +120,15 @@ export default function CadastroDisciplina() {
 			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string; mensagem?: string } }; message?: string };
 			let mensagemErro = "Erro ao cadastrar disciplina";
 
-			if (error.response?.data) {
-				const errorData = error.response.data;
-				mensagemErro =
-					errorData.error ||
-					errorData.message ||
-					errorData.msg ||
-					errorData.mensagem ||
-					(typeof errorData === "string" ? errorData : mensagemErro);
-			} else if (error.message) {
-				mensagemErro = error.message;
+			if (axiosError.response?.data) {
+				const errorData = axiosError.response.data;
+				if (typeof errorData === "string") {
+					mensagemErro = errorData;
+				} else {
+					mensagemErro = errorData.error || errorData.message || errorData.msg || errorData.mensagem || mensagemErro;
+				}
+			} else if (axiosError.message) {
+				mensagemErro = axiosError.message;
 			}
 
 			toast.error(mensagemErro, {

@@ -14,7 +14,7 @@ export default function VincularDisciplinaProfessor() {
 	const [disciplinasIds, setDisciplinasIds] = useState<number[]>([]);
 	const [professorId, setProfessorId] = useState<number | null>(null);
 	const [resetKey, setResetKey] = useState(0);
-	const [loading, setLoading] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
 
 	const handleDisciplinasChange = (
 		disciplinasIds: number[],
@@ -38,7 +38,7 @@ export default function VincularDisciplinaProfessor() {
 		}
 
 		try {
-			setLoading(true);
+			setSubmitting(true);
 
 			// Cadastrar cada disciplina separadamente
 			for (const idDisciplina of disciplinasIds) {
@@ -76,7 +76,7 @@ export default function VincularDisciplinaProfessor() {
 				duration: 5000,
 			});
 		} finally {
-			setLoading(false);
+			setSubmitting(false);
 		}
 	};
 
