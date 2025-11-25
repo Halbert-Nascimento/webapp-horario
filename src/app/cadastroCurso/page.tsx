@@ -53,7 +53,7 @@ export default function CadastroCurso() {
 			const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
 			let mensagemErro = "Erro ao cadastrar curso";
 
-			if (axiosError.response?.data?.message) {ge) {
+			if (axiosError.response?.data?.message) {
 				mensagemErro = axiosError.response.data.message;
 			} else if (axiosError.response?.data?.error) {
 				mensagemErro = axiosError.response.data.error;
