@@ -127,7 +127,7 @@ export default function Modal({
 
 		try {
 			const payload = {
-				idGrade: idGrade, // ID do semestre letivo
+				idGrade: user?.idCurso, // ID do curso do usuário
 				idDisciplina: parseInt(formData.disciplinaId),
 				idProfessor: parseInt(formData.professorId),
 				idDiaSemana: idDiaSemana, // 1=Segunda, 2=Terça, etc
@@ -138,7 +138,12 @@ export default function Modal({
 			toast.success("Aula cadastrada com sucesso!");
 			onSave(conteudo);
 		} catch (error) {
-			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string } }; message?: string };
+			const axiosError = error as {
+				response?: {
+					data?: string | { error?: string; message?: string; msg?: string };
+				};
+				message?: string;
+			};
 			let mensagemErro = "Erro ao salvar os dados";
 
 			if (axiosError.response?.data) {

@@ -80,65 +80,67 @@ export default function Tabela() {
 			const dadosMapeados: { [key: string]: string } = {};
 			const celulasIdMap: { [key: string]: number } = {};
 
-			celulasResponse.data.forEach((celula: CelulaViewInterface) => {
-				// Tratar dia_semana
-				let diaSemana: string;
-				if (typeof celula.dia_semana === "number") {
-					diaSemana = getDiaSemanaString(celula.dia_semana);
-				} else {
-					// Converter de "segunda" para "Segunda-feira"
-					const diaMinusculo = celula.dia_semana.toLowerCase().trim();
-					const mapeamentoDias: { [key: string]: string } = {
-						segunda: "Segunda-feira",
-						terça: "Terça-feira",
-						terca: "Terça-feira", // fallback sem acento
-						quarta: "Quarta-feira",
-						quinta: "Quinta-feira",
-						sexta: "Sexta-feira",
-						sábado: "Sábado",
-						sabado: "Sábado", // fallback sem acento
-						domingo: "Domingo",
-					};
+			if (Array.isArray(celulasResponse.data)) {
+				celulasResponse.data.forEach((celula: CelulaViewInterface) => {
+					// Tratar dia_semana
+					let diaSemana: string;
+					if (typeof celula.dia_semana === "number") {
+						diaSemana = getDiaSemanaString(celula.dia_semana);
+					} else {
+						// Converter de "segunda" para "Segunda-feira"
+						const diaMinusculo = celula.dia_semana.toLowerCase().trim();
+						const mapeamentoDias: { [key: string]: string } = {
+							segunda: "Segunda-feira",
+							terça: "Terça-feira",
+							terca: "Terça-feira", // fallback sem acento
+							quarta: "Quarta-feira",
+							quinta: "Quinta-feira",
+							sexta: "Sexta-feira",
+							sábado: "Sábado",
+							sabado: "Sábado", // fallback sem acento
+							domingo: "Domingo",
+						};
 
-					diaSemana = mapeamentoDias[diaMinusculo] || celula.dia_semana;
-				}
+						diaSemana = mapeamentoDias[diaMinusculo] || celula.dia_semana;
+					}
 
-				// Extrair número do semestre
-				const semestreCelula = celula.semestreCelula;
+					// Extrair número do semestre
+					const semestreCelula = celula.semestreCelula;
 
-				// Criar a chave usando dia_semana e semestre
-				const chave = `${diaSemana}-${semestreCelula}º Semestre`;
+					// Criar a chave usando dia_semana e semestre
+					const chave = `${diaSemana}-${semestreCelula}º Semestre`;
 
-				// Armazenar o ID da célula
-				if (celula.idCelula !== undefined && celula.idCelula !== null) {
-					celulasIdMap[chave] = celula.idCelula;
-				}
+					// Armazenar o ID da célula
+					if (celula.idCelula !== undefined && celula.idCelula !== null) {
+						celulasIdMap[chave] = celula.idCelula;
+					}
 
-				// Construir o conteúdo formatado
-				const linhas: string[] = [];
+					// Construir o conteúdo formatado
+					const linhas: string[] = [];
 
-				// Linha 1: Código + Nome da Disciplina
-				if (celula.codigoDisciplina && celula.disciplina) {
-					linhas.push(`${celula.codigoDisciplina} - ${celula.disciplina}`);
-				} else if (celula.disciplina) {
-					linhas.push(celula.disciplina);
-				}
+					// Linha 1: Código + Nome da Disciplina
+					if (celula.codigoDisciplina && celula.disciplina) {
+						linhas.push(`${celula.codigoDisciplina} - ${celula.disciplina}`);
+					} else if (celula.disciplina) {
+						linhas.push(celula.disciplina);
+					}
 
-				// Linha 2: Tipo de Sala
-				if (celula.tipo_sala) {
-					linhas.push(`${celula.tipo_sala}`);
-				}
+					// Linha 2: Tipo de Sala
+					if (celula.tipo_sala) {
+						linhas.push(`${celula.tipo_sala}`);
+					}
 
-				// Linha 3: Professor + Titulação
-				if (celula.professor && celula.titulacao) {
-					linhas.push(`${celula.professor} (${celula.titulacao})`);
-				} else if (celula.professor) {
-					linhas.push(celula.professor);
-				}
+					// Linha 3: Professor + Titulação
+					if (celula.professor && celula.titulacao) {
+						linhas.push(`${celula.professor} (${celula.titulacao})`);
+					} else if (celula.professor) {
+						linhas.push(celula.professor);
+					}
 
-				const conteudo = linhas.join("\n");
-				dadosMapeados[chave] = conteudo;
-			});
+					const conteudo = linhas.join("\n");
+					dadosMapeados[chave] = conteudo;
+				});
+			}
 
 			setDados(dadosMapeados);
 			setCelulasMap(celulasIdMap);
@@ -182,7 +184,9 @@ export default function Tabela() {
 			setCelulaParaDeletar(null);
 			await carregarDados();
 		} catch (error) {
-			const axiosError = error as { response?: { data?: string | { error?: string; message?: string } } };
+			const axiosError = error as {
+				response?: { data?: string | { error?: string; message?: string } };
+			};
 			let mensagemErro = "Erro ao excluir a aula";
 
 			if (axiosError.response?.data) {
@@ -232,12 +236,12 @@ export default function Tabela() {
 
 	return (
 		<div className='flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 lg:ml-72 pt-20'>
-			<button
+			{/*<button
 				onClick={() => setApenasImpares(!apenasImpares)}
 				className='mb-4 bg-blue-800 text-white px-4 py-2 rounded text-sm sm:text-base'
 			>
 				{apenasImpares ? "Semestres Pares" : "Semestres Ímpares"}
-			</button>
+			</button> */}
 
 			<div className='w-full overflow-x-auto shadow-lg max-w-[95vw] lg:max-w-[1200px]'>
 				<table className='border-separate border-spacing-0 border text-center w-full'>
