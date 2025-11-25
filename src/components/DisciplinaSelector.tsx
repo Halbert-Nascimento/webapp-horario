@@ -70,16 +70,14 @@ export default function DisciplinaSelector({
 		const carregarDados = async () => {
 			try {
 				setLoading(true);
-				setError(null);
+			setError(null);
 
-				// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
-				const [cursoRes, disciplinasRes]: [any, AxiosResponse<Disciplina[]>] =
-					await Promise.all([
-						api.get(`/curso/${1}`),
-						api.get<Disciplina[]>(`/disciplina/curso/${1}`),
-					]);
-
-				// A API retorna um array, pegar o primeiro elemento
+			// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
+			const [cursoRes, disciplinasRes]: [AxiosResponse<Curso | Curso[]>, AxiosResponse<Disciplina[]>] =
+				await Promise.all([
+					api.get<Curso | Curso[]>(`/curso/${1}`),
+					api.get<Disciplina[]>(`/disciplina/curso/${1}`),
+				]);				// A API retorna um array, pegar o primeiro elemento
 				const dadosCurso = Array.isArray(cursoRes.data)
 					? cursoRes.data[0]
 					: cursoRes.data;

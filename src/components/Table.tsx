@@ -185,12 +185,15 @@ export default function Tabela() {
 			const axiosError = error as { response?: { data?: string | { error?: string; message?: string } } };
 			let mensagemErro = "Erro ao excluir a aula";
 
-			if (error.response?.data?.error) {
-				mensagemErro = error.response.data.error;
-			} else if (error.response?.data?.message) {
-				mensagemErro = error.response.data.message;
-			} else if (typeof error.response?.data === "string") {
-				mensagemErro = error.response.data;
+			if (axiosError.response?.data) {
+				const errorData = axiosError.response.data;
+				if (typeof errorData === "string") {
+					mensagemErro = errorData;
+				} else if (errorData.error) {
+					mensagemErro = errorData.error;
+				} else if (errorData.message) {
+					mensagemErro = errorData.message;
+				}
 			}
 
 			toast.error(mensagemErro);

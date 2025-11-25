@@ -13,7 +13,6 @@ export default function Modal({
 	dia,
 	semestre,
 	idGrade = 1,
-	idCelula,
 }: ModalProps) {
 	const { user } = useAuth();
 	const [professores, setProfessores] = useState<Professor[]>([]);
@@ -142,16 +141,19 @@ export default function Modal({
 			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string } }; message?: string };
 			let mensagemErro = "Erro ao salvar os dados";
 
-			if (error.response?.data?.error) {
-				mensagemErro = error.response.data.error;
-			} else if (error.response?.data?.message) {
-				mensagemErro = error.response.data.message;
-			} else if (error.response?.data?.msg) {
-				mensagemErro = error.response.data.msg;
-			} else if (typeof error.response?.data === "string") {
-				mensagemErro = error.response.data;
-			} else if (error.message) {
-				mensagemErro = error.message;
+			if (axiosError.response?.data) {
+				const errorData = axiosError.response.data;
+				if (typeof errorData === "string") {
+					mensagemErro = errorData;
+				} else if (errorData.error) {
+					mensagemErro = errorData.error;
+				} else if (errorData.message) {
+					mensagemErro = errorData.message;
+				} else if (errorData.msg) {
+					mensagemErro = errorData.msg;
+				}
+			} else if (axiosError.message) {
+				mensagemErro = axiosError.message;
 			}
 
 			toast.error(mensagemErro, {

@@ -8,29 +8,13 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 import api from "@/services/api";
 import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
-import { Professor } from "@/interfaces/types";
+import { useState } from "react";
 
 export default function VincularDisciplinaProfessor() {
 	const [disciplinasIds, setDisciplinasIds] = useState<number[]>([]);
 	const [professorId, setProfessorId] = useState<number | null>(null);
-	const [professores, setProfessores] = useState<Professor[]>([]);
 	const [resetKey, setResetKey] = useState(0);
 	const [loading, setLoading] = useState(false);
-
-	// Carregar professores ao montar o componente
-	useEffect(() => {
-		const carregarProfessores = async () => {
-			try {
-				const response = await api.get<Professor[]>("/professor");
-				setProfessores(response.data);
-			} catch {
-				toast.error("Erro ao carregar professores");
-			}
-		};
-
-		carregarProfessores();
-	}, []);
 
 	const handleDisciplinasChange = (
 		disciplinasIds: number[],
@@ -77,16 +61,15 @@ export default function VincularDisciplinaProfessor() {
 			const axiosError = error as { response?: { data?: string | { error?: string; message?: string; msg?: string; mensagem?: string } }; message?: string };
 			let mensagemErro = "Erro ao vincular disciplinas";
 
-			if (error.response?.data) {
-				const errorData = error.response.data;
-				mensagemErro =
-					errorData.error ||
-					errorData.message ||
-					errorData.msg ||
-					errorData.mensagem ||
-					(typeof errorData === "string" ? errorData : mensagemErro);
-			} else if (error.message) {
-				mensagemErro = error.message;
+			if (axiosError.response?.data) {
+				const errorData = axiosError.response.data;
+				if (typeof errorData === "string") {
+					mensagemErro = errorData;
+				} else {
+					mensagemErro = errorData.error || errorData.message || errorData.msg || errorData.mensagem || mensagemErro;
+				}
+			} else if (axiosError.message) {
+				mensagemErro = axiosError.message;
 			}
 
 			toast.error(mensagemErro, {
