@@ -70,9 +70,11 @@ export default function DisciplinaSelector({
 
 	// Carregar dados do curso e disciplinas
 	useEffect(() => {
-		if (!courseId) {
+		// Verificar se o usuário tem idCurso
+		if (!user?.idCurso) {
 			setDisciplinas([]);
 			setCurso(null);
+			setError("Usuário sem curso associado");
 			return;
 		}
 
@@ -81,14 +83,16 @@ export default function DisciplinaSelector({
 				setLoading(true);
 				setError(null);
 
-				// Buscar dados do curso e disciplinas em paralelo com tipagem explícita
+				// Buscar dados do curso e disciplinas usando o idCurso do usuário
 				const [cursoRes, disciplinasRes]: [
 					AxiosResponse<Curso | Curso[]>,
 					AxiosResponse<Disciplina[]>,
 				] = await Promise.all([
-					api.get<Curso | Curso[]>(`/curso/${1}`),
-					api.get<Disciplina[]>(`/disciplina/curso/${1}`),
-				]); // A API retorna um array, pegar o primeiro elemento
+					api.get<Curso | Curso[]>(`/curso/${user.idCurso}`),
+					api.get<Disciplina[]>(`/disciplina/curso/${user.idCurso}`),
+				]);
+
+				// A API retorna um array, pegar o primeiro elemento
 				const dadosCurso = Array.isArray(cursoRes.data)
 					? cursoRes.data[0]
 					: cursoRes.data;
@@ -111,14 +115,14 @@ export default function DisciplinaSelector({
 
 				setDisciplinas(disciplinasUnicas || []);
 			} catch {
-				setError("Erro ao carregar dados");
+				setError("Erro ao carregar dados do curso");
 			} finally {
 				setLoading(false);
 			}
 		};
 
 		carregarDados();
-	}, [courseId]);
+	}, [user?.idCurso]);
 
 	const toggle = (id: number) => {
 		const novo = selecionados.includes(id)
@@ -216,9 +220,9 @@ export default function DisciplinaSelector({
 					<span className='text-sm text-gray-600'>
 						Carregando disciplinas...
 					</span>
-				) : !courseId ? (
+				) : !user?.idCurso ? (
 					<span className='text-sm text-gray-600'>
-						Nenhum curso selecionado
+						Usuário sem curso associado
 					</span>
 				) : semestres.length > 0 ? (
 					<div className='flex flex-col gap-4'>
